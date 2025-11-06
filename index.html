@@ -51,21 +51,23 @@
     .info .en {
       font-size: 18px;
       position: relative;
-      top: 2px;
+      top: 1px;
+      left: 1px;
       color: #555;
     }
     .name {
-      top: 300px;
+      top: 200px;
+      left: 90px;
     }
     .area {
-      top: 390px;
-      left: 110px;
+      top: 320px;
+      left: 87px;
     }
     
     /* 主卡片 */
     .card-img {
       position: absolute;
-      top:390px;
+      top:400px;
       left: 240px;
       transform: translate(-50%, -50%);
       width: 480px;
@@ -75,8 +77,8 @@
     
     .tab-img {
       position: absolute;
-      top: 317px;
-      left: 50%;
+      top: 220px;
+      left: 160px;
       transform: translateX(-50%);
       width: 280px;
       height: auto;
@@ -87,7 +89,7 @@
     /* 按钮独立定位 */
     .btn {
       position: absolute;
-      width: 140px;
+      width: 100px;
       height: auto;
       cursor: pointer;
       transition: transform 0.2s ease, filter 0.2s ease;
@@ -98,16 +100,16 @@
       filter: brightness(1.2);
     }
     .btn:active {
-      transform: scale(0.95);
+      transform: scale(0.75);
     }
     
     /* 各按钮位置 */
-    .btn.asia { top: 160px; left: 60px; }
-    .btn.us { top: 160px; left: 210px; }
-    .btn.se { top: 230px; left: 60px; }
-    .btn.oc { top: 230px; left: 210px; }
-    .btn.eu { top: 300px; left: 60px; }
-    .btn.other { top: 300px; left: 210px; }
+    .btn.asia { top: 360px; left: 44px; }
+    .btn.us { top: 442px; left: 44px;width: 200px; }
+    .btn.se { top: 360px; left: 160px;width: 140px; }
+    .btn.oc { top: 402px; left: 194px;width: 140px; }
+    .btn.eu { top: 402px; left:44px;width: 140px; }
+    .btn.other { top: 482px; left: 44px; }
   </style>
 </head>
 <body>
@@ -155,4 +157,3 @@
   </script>
 </body>
 </html>
-
