@@ -65,7 +65,7 @@
     }
     
     /* 主卡片 */
-    .card-3d {
+    .card-img {
       position: absolute;
       top:400px;
       left: 240px;
@@ -73,51 +73,7 @@
       width: 480px;
       height: auto;
       z-index: 1;
-      perspective: 900px;
-      transform-style: preserve-3d;
     }
-    .card-3d .card-face {
-      display: block;
-      width: 480px;
-      height: auto;
-      transform-origin: center;
-      transition: transform 360ms cubic-bezier(.22,.61,.36,1), filter 360ms ease, box-shadow 360ms ease;
-      will-change: transform, filter;
-      filter: brightness(0.99) contrast(1.01);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.22);
-      pointer-events: none;
-    }
-    .card-3d .hotspots {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      z-index: 2;
-    }
-    .card-3d .spot {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-      background: transparent;
-    }
-    /* 悬停亮度与微缩放（更柔和） */
-    .card-3d:has(.spot:hover) .card-face {
-      filter: brightness(1.03) contrast(1.02);
-      box-shadow: 0 16px 30px rgba(0,0,0,0.30);
-    }
-    /* 方向分区（九宫格）更自然的角度 */
-    .card-3d:has(.spot.nw:hover) .card-face { transform: rotateX(6deg) rotateY(-6deg) translateZ(6px); }
-    .card-3d:has(.spot.n:hover)  .card-face { transform: rotateX(6deg) rotateY(0deg)  translateZ(6px); }
-    .card-3d:has(.spot.ne:hover) .card-face { transform: rotateX(6deg) rotateY(6deg)  translateZ(6px); }
-    .card-3d:has(.spot.w:hover)  .card-face { transform: rotateX(0deg) rotateY(-8deg) translateZ(4px); }
-    .card-3d:has(.spot.c:hover)  .card-face { transform: rotateX(0deg) rotateY(0deg)  scale(1.015) translateZ(8px); }
-    .card-3d:has(.spot.e:hover)  .card-face { transform: rotateX(0deg) rotateY(8deg)  translateZ(4px); }
-    .card-3d:has(.spot.sw:hover) .card-face { transform: rotateX(-6deg) rotateY(-6deg) translateZ(6px); }
-    .card-3d:has(.spot.s:hover)  .card-face { transform: rotateX(-6deg) rotateY(0deg)  translateZ(6px); }
-    .card-3d:has(.spot.se:hover) .card-face { transform: rotateX(-6deg) rotateY(6deg)  translateZ(6px); }
-
     
     .tab-img {
       position: absolute;
@@ -177,6 +133,12 @@
       position: absolute;
       z-index: 3;
       text-align: center;
+      display: inline-block;
+    }
+    .btn {
+      position: relative;
+      z-index: 1;
+      display: block;
     }
     .btn-label {
       position: absolute;
@@ -189,6 +151,48 @@
       white-space: nowrap;
       user-select: none;
       pointer-events: none;
+      transition: color 0.3s ease;
+      z-index: 3;
+    }
+    
+    /* 选中状态：背景变黑、字体变白 */
+    .btn-wrap.active .btn-bg {
+      display: block;
+    }
+    .btn-bg {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      border-radius: 8px;
+      z-index: 2;
+      pointer-events: none;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    .btn-wrap.active .btn {
+      filter: brightness(0) invert(1);
+      opacity: 0.3;
+      transition: filter 0.3s ease, opacity 0.3s ease;
+    }
+    .btn-wrap.active .btn-label {
+      color: #ffffff;
+    }
+    
+    /* 默认状态：确保未选中时恢复原样 */
+    .btn-wrap:not(.active) .btn {
+      filter: none !important;
+      opacity: 1 !important;
+      transition: filter 0.3s ease, opacity 0.3s ease;
+    }
+    .btn-wrap:not(.active) .btn-label {
+      color: black !important;
+    }
+    /* 确保未选中时背景层隐藏 */
+    .btn-wrap:not(.active) .btn-bg {
+      display: none !important;
     }
 
     /* 各按钮位置（包裹容器定位） */
@@ -247,25 +251,12 @@
         <div class="btn-label">Other ほか</div>
       </div>
     
-    <!-- 主视觉（CSS 3D 互动卡片，无 JS） -->
-    <div class="card-3d">
-      <img src="./card.svg" alt="card" class="card-face" />
-      <div class="hotspots">
-        <div class="spot nw"></div>
-        <div class="spot n"></div>
-        <div class="spot ne"></div>
-        <div class="spot w"></div>
-        <div class="spot c"></div>
-        <div class="spot e"></div>
-        <div class="spot sw"></div>
-        <div class="spot s"></div>
-        <div class="spot se"></div>
-      </div>
-    </div>
+    <!-- 主视觉 -->
+    <img src="./card.svg" alt="card" class="card-img" />
     <!-- 覆盖在卡片上的黑色按钮（确保 blackbutton.svg 存在于同目录） -->
     <img src="./blackbutton.svg" alt="black button" class="blackbutton-img" />
     <div class="blackbutton-label">おすすめ</div>
-    <object id="tabObj" class="tab-img" type="image/svg+xml" data="./tab1.svg" aria-label="Tab"></object>
+    <img src="./tab1.svg" alt="tab" class="tab-img" />
   </div>
 
   <script>
@@ -282,52 +273,109 @@
     window.addEventListener('resize', autoScale);
     window.addEventListener('load', autoScale);
     autoScale();
-
-    // 将可编辑区域注入到 tab1.svg 内部（foreignObject）
-    window.addEventListener('load', () => {
-      const obj = document.getElementById('tabObj');
-      if (!obj) return;
-      obj.addEventListener('load', () => {
-        const svgDoc = obj.contentDocument;
-        if (!svgDoc) return;
-        const svgEl = svgDoc.querySelector('svg');
-        if (!svgEl) return;
-
-        const ns = 'http://www.w3.org/2000/svg';
-        const vb = svgEl.viewBox && svgEl.viewBox.baseVal ? svgEl.viewBox.baseVal : null;
-        const svgW = vb && vb.width ? vb.width : (svgEl.width && svgEl.width.baseVal && svgEl.width.baseVal.value ? svgEl.width.baseVal.value : 300);
-        const svgH = vb && vb.height ? vb.height : (svgEl.height && svgEl.height.baseVal && svgEl.height.baseVal.value ? svgEl.height.baseVal.value : 200);
-
-        // 预设气泡内可编辑区域（按比例定位，方便不同 viewBox）
-        const x = svgW * 0.15;
-        const y = svgH * 0.25;
-        const w = svgW * 0.70;
-        const h = svgH * 0.50;
-
-        const fo = svgDoc.createElementNS(ns, 'foreignObject');
-        fo.setAttribute('x', String(x));
-        fo.setAttribute('y', String(y));
-        fo.setAttribute('width', String(w));
-        fo.setAttribute('height', String(h));
-
-        const div = svgDoc.createElement('div');
-        div.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
-        div.setAttribute('contenteditable', 'true');
-        div.setAttribute('aria-label', 'Tab text');
-        div.setAttribute('data-placeholder', 'ここに入力してください / Type here');
-        div.setAttribute('style', [
-          'width:100%','height:100%','display:flex','align-items:center','justify-content:center',
-          'text-align:center','outline:none','background:transparent','border-radius:8px',
-          'color:#000','font-size:16px','line-height:1.4','white-space:pre-wrap','word-break:break-word'
-        ].join(';'));
-
-        const style = svgDoc.createElement('style');
-        style.textContent = 'div[contenteditable="true"]:empty::before{content:attr(data-placeholder);color:#888;}';
-
-        fo.appendChild(div);
-        svgEl.appendChild(style);
-        svgEl.appendChild(fo);
+    
+    // 单选切换按钮组功能
+    document.addEventListener('DOMContentLoaded', function() {
+      const buttonWraps = document.querySelectorAll('.btn-wrap');
+      
+      // 为每个按钮创建背景层
+      buttonWraps.forEach(function(btnWrap) {
+        const btnBg = document.createElement('div');
+        btnBg.className = 'btn-bg';
+        btnWrap.appendChild(btnBg);
       });
+      
+      // 更新按钮背景层尺寸 - 精确匹配按钮图像
+      function updateButtonBackground(btnWrap) {
+        const btn = btnWrap.querySelector('.btn');
+        const btnBg = btnWrap.querySelector('.btn-bg');
+        if (btn && btnBg) {
+          if (btnWrap.classList.contains('active')) {
+            // 等待图像加载完成
+            if (btn.complete) {
+              setBackgroundSize();
+            } else {
+              btn.onload = setBackgroundSize;
+            }
+          } else {
+            // 未选中时隐藏背景层，并确保按钮样式恢复
+            btnBg.style.display = 'none';
+            // 清除可能的内联样式，让CSS规则生效
+            btn.style.filter = '';
+            btn.style.opacity = '';
+          }
+        }
+        
+        function setBackgroundSize() {
+          // 获取按钮图像的实际渲染尺寸
+          // 使用 offsetWidth/Height 获取元素的实际显示尺寸（包括CSS设置的宽度）
+          const btnWidth = btn.offsetWidth;
+          const btnHeight = btn.offsetHeight;
+          
+          // 设置背景层的位置和尺寸，精确匹配按钮
+          // 背景层使用绝对定位，相对于 .btn-wrap 容器
+          // 按钮图像在容器中从 (0,0) 开始，所以背景层也从 (0,0) 开始
+          btnBg.style.width = btnWidth + 'px';
+          btnBg.style.height = btnHeight + 'px';
+          btnBg.style.left = '0px';
+          btnBg.style.top = '0px';
+          btnBg.style.display = 'block';
+        }
+      }
+      
+      buttonWraps.forEach(function(btnWrap) {
+        btnWrap.addEventListener('click', function() {
+          // 移除所有按钮的 active 类，并更新所有按钮的状态
+          buttonWraps.forEach(function(wrap) {
+            wrap.classList.remove('active');
+            // 立即更新所有按钮，确保背景层被隐藏
+            updateButtonBackground(wrap);
+          });
+          
+          // 为当前点击的按钮添加 active 类
+          this.classList.add('active');
+          
+          // 等待一帧后更新新选中按钮的背景层尺寸，确保按钮已渲染
+          const clickedBtn = this;
+          requestAnimationFrame(function() {
+            updateButtonBackground(clickedBtn);
+          });
+        });
+        
+        // 初始化时检查是否需要设置尺寸
+        if (btnWrap.classList.contains('active')) {
+          requestAnimationFrame(function() {
+            updateButtonBackground(btnWrap);
+          });
+        }
+      });
+      
+      // 窗口大小改变时更新（包括缩放）
+      let resizeTimer;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+          buttonWraps.forEach(function(btnWrap) {
+            if (btnWrap.classList.contains('active')) {
+              updateButtonBackground(btnWrap);
+            }
+          });
+        }, 100);
+      });
+      
+      // 监听缩放事件后也更新
+      const originalAutoScale = window.autoScale;
+      if (typeof originalAutoScale === 'function') {
+        window.addEventListener('load', function() {
+          setTimeout(function() {
+            buttonWraps.forEach(function(btnWrap) {
+              if (btnWrap.classList.contains('active')) {
+                updateButtonBackground(btnWrap);
+              }
+            });
+          }, 200);
+        });
+      }
     });
 </script>
 </body>
