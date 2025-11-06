@@ -8,7 +8,7 @@
     html, body {
       height: 100%;
       margin: 0;
-      background: #f4f4f4;
+      background: #000000;
       overflow: hidden;
     }
     
@@ -88,12 +88,11 @@
     
     /* 按钮独立定位 */
     .btn {
-      position: absolute;
+      display: block;
       width: 100px;
       height: auto;
       cursor: pointer;
       transition: transform 0.2s ease, filter 0.2s ease;
-      z-index: 3;
     }
     .btn:hover {
       transform: scale(1.08);
@@ -103,13 +102,38 @@
       transform: scale(0.75);
     }
     
-    /* 各按钮位置 */
-    .btn.asia { top: 360px; left: 44px; }
-    .btn.us { top: 442px; left: 44px;width: 200px; }
-    .btn.se { top: 360px; left: 160px;width: 140px; }
-    .btn.oc { top: 402px; left: 194px;width: 140px; }
-    .btn.eu { top: 402px; left:44px;width: 140px; }
-    .btn.other { top: 482px; left: 44px; }
+    /* 按钮包裹与标签 */
+    .btn-wrap {
+      position: absolute;
+      z-index: 3;
+      text-align: center;
+    }
+    .btn-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      font-weight: 700;
+      color: black;
+      white-space: nowrap;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* 各按钮位置（包裹容器定位） */
+    .btn-wrap.asia { top: 360px; left: 44px; }
+    .btn-wrap.us { top: 442px; left: 44px; }
+    .btn-wrap.se { top: 360px; left: 160px; }
+    .btn-wrap.oc { top: 402px; left: 194px; }
+    .btn-wrap.eu { top: 402px; left: 44px; }
+    .btn-wrap.other { top: 482px; left: 44px; }
+
+    /* 各按钮尺寸（作用于图片本体） */
+    .btn-wrap.us .btn { width: 200px; }
+    .btn-wrap.se .btn { width: 140px; }
+    .btn-wrap.oc .btn { width: 140px; }
+    .btn-wrap.eu .btn { width: 140px; }
   </style>
 </head>
 <body>
@@ -127,13 +151,31 @@
       <span class="en">Area</span>
     </div>
     
-    <!-- 独立按钮 -->
-      <img src="./buttonasia.svg" class="btn asia" alt="Asia アジア" />
-      <img src="./buttonus.svg" class="btn us" alt="The Americas アメリカ大陸" />
-      <img src="./buttonse.svg" class="btn se" alt="SE Asia 東南アジア" />
-      <img src="./buttonoc.svg" class="btn oc" alt="Oceania オセアニア" />
-      <img src="./buttoneu.svg" class="btn eu" alt="Europe ヨーロッパ" />
-      <img src="./buttonother.svg" class="btn other" alt="Other ほか" />
+    <!-- 独立按钮（带可见文字标签） -->
+      <div class="btn-wrap asia">
+        <img src="./buttonasia.svg" class="btn" alt="Asia アジア" title="Asia アジア" />
+        <div class="btn-label">Asia アジア</div>
+      </div>
+      <div class="btn-wrap us">
+        <img src="./buttonus.svg" class="btn" alt="The Americas アメリカ大陸" title="The Americas アメリカ大陸" />
+        <div class="btn-label">The Americas アメリカ大陸</div>
+      </div>
+      <div class="btn-wrap se">
+        <img src="./buttonse.svg" class="btn" alt="SE Asia 東南アジア" title="SE Asia 東南アジア" />
+        <div class="btn-label">SE Asia 東南アジア</div>
+      </div>
+      <div class="btn-wrap oc">
+        <img src="./buttonoc.svg" class="btn" alt="Oceania オセアニア" title="Oceania オセアニア" />
+        <div class="btn-label">Oceania オセアニア</div>
+      </div>
+      <div class="btn-wrap eu">
+        <img src="./buttoneu.svg" class="btn" alt="Europe ヨーロッパ" title="Europe ヨーロッパ" />
+        <div class="btn-label">Europe ヨーロッパ</div>
+      </div>
+      <div class="btn-wrap other">
+        <img src="./buttonother.svg" class="btn" alt="Other ほか" title="Other ほか" />
+        <div class="btn-label">Other ほか</div>
+      </div>
     
     <!-- 主视觉 -->
     <img src="./card.svg" alt="card" class="card-img" />
