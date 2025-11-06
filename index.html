@@ -19,16 +19,18 @@
       height: 852px;
       transform-origin: center center;
       margin: auto;
+      z-index: 1;
     }
     
     /* 背景图 */
     .background {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       z-index: 0;
+      object-fit: cover;
     }
     
     /* 信息标签 */
@@ -109,9 +111,9 @@
   </style>
 </head>
 <body>
+    <img src="./background.svg" alt="背景" class="background" />
   <div class="wrapper">
     <!-- 背景图 -->
-    <img src="./background.svg" alt="背景" class="background" />
     
     <!-- 名称与区域标签 -->
     <div class="info name">
