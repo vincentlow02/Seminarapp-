@@ -208,6 +208,31 @@
     .btn-wrap.se .btn { width: 140px; }
     .btn-wrap.oc .btn { width: 140px; }
     .btn-wrap.eu .btn { width: 140px; }
+    
+    /* 名字输入框样式（参考按钮的圆角盒子风格） */
+    .text-input {
+      position: absolute;
+      top: 240px;
+      left: 40px;
+      width: 250px;
+      height: 34px;
+      padding: 0 13px;
+      font-size: 13px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      color: black;
+      background: #ffffff;
+      border: 1px solid #000000;
+      border-radius: 9999px;
+      box-sizing: border-box;
+      z-index: 3;
+      outline: none;
+    }
+    .text-input::placeholder {
+      color: #474747;
+    }
+    .text-input:focus {
+      box-shadow: none;
+    }
   </style>
 </head>
 <body>
@@ -220,6 +245,7 @@
       <span class="jp">名前</span>
       <span class="en">Name</span>
     </div>
+    <input class="text-input" type="text" placeholder=" お名前を入力" aria-label="name input" / >
     <div class="info area">
       <span class="jp">地域</span>
       <span class="en">Area</span>
@@ -256,7 +282,6 @@
     <!-- 覆盖在卡片上的黑色按钮（确保 blackbutton.svg 存在于同目录） -->
     <img src="./blackbutton.svg" alt="black button" class="blackbutton-img" />
     <div class="blackbutton-label">おすすめ</div>
-    <img src="./tab1.svg" alt="tab" class="tab-img" />
   </div>
 
   <script>
@@ -380,4 +405,4 @@
 </script>
 </body>
 </html>
-
+ 
