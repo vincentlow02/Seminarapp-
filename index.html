@@ -224,6 +224,43 @@
     .text-input:focus {
       box-shadow: none;
     }
+    
+    /* blackbutton 禁用状态 */
+    .blackbutton-img {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .blackbutton-img.disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+      /* 移除 pointer-events: none; 让禁用状态下也可以点击来显示提示 */
+    }
+    .blackbutton-img:hover:not(.disabled) {
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+    
+    /* 提示文本样式 */
+    .warning-text {
+      position: absolute;
+      top: 177px;
+      left: 200px;
+      transform: translate(-50%, -50%);
+      z-index: 4;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ff0000;
+      text-align: center;
+      white-space: nowrap;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      user-select: none;
+    }
+    .warning-text.show {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -271,8 +308,9 @@
     <!-- 主视觉 -->
     <img src="./card.svg" alt="card" class="card-img" />
     <!-- 覆盖在卡片上的黑色按钮（确保 blackbutton.svg 存在于同目录） -->
-    <img src="./blackbutton.svg" alt="black button" class="blackbutton-img" />
+    <img src="./blackbutton.svg" alt="black button" class="blackbutton-img disabled" />
     <div class="blackbutton-label">おすすめ</div>
+    <div class="warning-text" id="warningText"></div>
   </div>
 
   <script>
@@ -339,6 +377,29 @@
         }
       }
       
+      // blackbutton 状态管理
+      const blackButton = document.querySelector('.blackbutton-img');
+      const nameInput = document.querySelector('.text-input');
+      
+      // 检查是否有按钮被选中且名字输入框有内容，更新 blackbutton 状态
+      function updateBlackButtonState() {
+        const hasActiveButton = document.querySelector('.btn-wrap.active') !== null;
+        const hasName = nameInput && nameInput.value.trim().length > 0;
+        const warningText = document.getElementById('warningText');
+        
+        if (hasActiveButton && hasName) {
+          blackButton.classList.remove('disabled');
+          // 两个条件都满足，隐藏提示
+          if (warningText) {
+            warningText.classList.remove('show');
+            warningText.textContent = '';
+          }
+        } else {
+          blackButton.classList.add('disabled');
+          // 不在这里显示提示，只在点击 blackbutton 时显示
+        }
+      }
+      
       buttonWraps.forEach(function(btnWrap) {
         btnWrap.addEventListener('click', function() {
           // 移除所有按钮的 active 类，并更新所有按钮的状态
@@ -355,6 +416,8 @@
           const clickedBtn = this;
           requestAnimationFrame(function() {
             updateButtonBackground(clickedBtn);
+            // 更新 blackbutton 状态
+            updateBlackButtonState();
           });
         });
         
@@ -365,6 +428,44 @@
           });
         }
       });
+      
+      // 监听名字输入框的变化
+      if (nameInput) {
+        nameInput.addEventListener('input', function() {
+          updateBlackButtonState();
+        });
+        // 也监听 blur 事件，确保在失去焦点时也更新状态
+        nameInput.addEventListener('blur', function() {
+          updateBlackButtonState();
+        });
+      }
+      
+      // blackbutton 点击事件：只有选中按钮且输入名字后才能跳转
+      blackButton.addEventListener('click', function() {
+        const hasActiveButton = document.querySelector('.btn-wrap.active') !== null;
+        const hasName = nameInput && nameInput.value.trim().length > 0;
+        const warningText = document.getElementById('warningText');
+        
+        if (hasActiveButton && hasName && !this.classList.contains('disabled')) {
+          // 跳转到 country.html
+          window.location.href = 'country.html';
+        } else {
+          // 显示相应的提示信息
+          if (warningText) {
+            if (!hasActiveButton && !hasName) {
+              warningText.textContent = '名前を入力して、地域を選んでください。';
+            } else if (!hasActiveButton) {
+              warningText.textContent = '地域を選択してください';
+            } else if (!hasName) {
+              warningText.textContent = '名前を入力してください';
+            }
+            warningText.classList.add('show');
+          }
+        }
+      });
+      
+      // 初始化 blackbutton 状态
+      updateBlackButtonState();
       
       // 窗口大小改变时更新（包括缩放）
       let resizeTimer;
