@@ -503,17 +503,14 @@
           if (candidateList && candidateList.length > 0) {
             const randomIndex = Math.floor(Math.random() * candidateList.length);
             const chosenImage = candidateList[randomIndex];
-            const url = new URL('country.html', window.location.href);
-            url.searchParams.set('img', chosenImage);
-            if (nameInput) {
-              url.searchParams.set('name', nameInput.value.trim());
-            }
+            sessionStorage.setItem('selectedImage', chosenImage);
+            sessionStorage.setItem('selectedName', nameInput ? nameInput.value.trim() : '');
             preloadImage(chosenImage);
             if (warningText) {
               warningText.classList.remove('show');
               warningText.textContent = '';
             }
-            window.location.href = url.toString();
+            window.location.href = 'country.html';
           } else if (warningText) {
             warningText.textContent = '该地区暂未设置推荐图片。';
             warningText.classList.add('show');

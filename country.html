@@ -82,19 +82,17 @@
 
     (function () {
 
-      const params = new URLSearchParams(window.location.search);
+      const storedImage = sessionStorage.getItem('selectedImage');
+      const storedName = sessionStorage.getItem('selectedName');
 
-      const imgParam = params.get('img');
-      const nameParam = params.get('name');
-
-      if (imgParam) {
+      if (storedImage) {
         const imageElement = document.getElementById('countryImage');
-        imageElement.src = imgParam;
+        imageElement.src = storedImage;
       }
 
       const userNameElement = document.getElementById('userName');
-      if (userNameElement && nameParam) {
-        userNameElement.textContent = nameParam;
+      if (userNameElement && storedName) {
+        userNameElement.textContent = storedName;
       }
 
       const timestampElement = document.getElementById('timestamp');
