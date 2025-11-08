@@ -50,31 +50,29 @@
     .user-name {
       position: absolute;
       bottom: 54px;
-      left: 50%;
-      max-width: 80vw;
+      left: calc(50% - 140px);
+      max-width: 280px;
       font-size: 18px;
       font-weight: 600;
       letter-spacing: 0.05em;
       color: #333333;
       pointer-events: none;
       text-align: center;
-      word-break: break-all;
+      word-break: break-word;
       overflow-wrap: anywhere;
-      transform: translateX(-50%);
       font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     }
 
     .timestamp {
       position: absolute;
       bottom: 36px;
-      left: 50%;
+      left: calc(50% - 140px);
       font-size: 13px;
       font-weight: 500;
       color: #6a6a6a;
       letter-spacing: 0.08em;
       pointer-events: none;
       text-align: center;
-      transform: translateX(-50%);
       font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     }
 
@@ -176,14 +174,13 @@
           const cropCanvas = document.createElement('canvas');
           const cropWidth = Math.floor(canvas.width * (1 - cropRatio));
           const cropHeight = canvas.height;
-          const cropStartX = Math.max(0, canvas.width - cropWidth);
           cropCanvas.width = cropWidth;
           cropCanvas.height = cropHeight;
           const cropCtx = cropCanvas.getContext('2d');
           if (cropCtx) {
             cropCtx.drawImage(
               canvas,
-              cropStartX,
+              0,
               0,
               cropWidth,
               cropHeight,
