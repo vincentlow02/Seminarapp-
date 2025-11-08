@@ -55,6 +55,10 @@
       font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     }
 
+    #captureArea {
+      position: relative;
+    }
+
     .timestamp {
       position: absolute;
       bottom: 36px;
@@ -68,15 +72,38 @@
       transform: translateX(-50%);
       font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     }
+
+    .share-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 999px;
+      background: #1d1d1f;
+      color: #ffffff;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .share-button:active {
+      transform: translateY(1px);
+    }
   </style>
 
 </head>
 
 <body>
 
-  <img id="countryImage" src="asia/jp.svg" alt="Country Image">
-  <div class="user-name" id="userName" aria-live="polite"></div>
-  <div class="timestamp" id="timestamp" aria-live="polite"></div>
+  <div id="captureArea">
+    <img id="countryImage" src="asia/jp.svg" alt="Country Image">
+    <div class="user-name" id="userName" aria-live="polite"></div>
+    <div class="timestamp" id="timestamp" aria-live="polite"></div>
+  </div>
+  <button class="share-button" id="shareButton">シェア</button>
 
   <script>
 
@@ -114,6 +141,51 @@
 
       updateTimestamp();
       setInterval(updateTimestamp, 1000);
+
+      const shareButton = document.getElementById('shareButton');
+      const captureArea = document.getElementById('captureArea');
+
+      async function captureCanvas() {
+        return html2canvas(captureArea, {
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          scale: window.devicePixelRatio || 1,
+          logging: false
+        });
+      }
+
+      async function shareCapture() {
+        if (!captureArea) {
+          return;
+        }
+        try {
+          const canvas = await captureCanvas();
+          const blob = await new Promise((resolve) => {
+            canvas.toBlob(resolve, 'image/png', 1.0);
+          });
+          if (!blob) {
+            alert('画像の生成に失敗しました。');
+            return;
+          }
+          const file = new File([blob], 'recommendation.png', { type: 'image/png' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file] });
+          } else {
+            const dataUrl = canvas.toDataURL('image/png');
+            const tempLink = document.createElement('a');
+            tempLink.href = dataUrl;
+            tempLink.download = 'recommendation.png';
+            tempLink.click();
+          }
+        } catch (error) {
+          console.error('share failed', error);
+          alert('共有に失敗しました。');
+        }
+      }
+
+      if (shareButton) {
+        shareButton.addEventListener('click', shareCapture);
+      }
 
     })();
 
