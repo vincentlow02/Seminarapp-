@@ -503,8 +503,11 @@
           if (candidateList && candidateList.length > 0) {
             const randomIndex = Math.floor(Math.random() * candidateList.length);
             const chosenImage = candidateList[randomIndex];
+            const selectedName = nameInput ? nameInput.value.trim() : '';
             sessionStorage.setItem('selectedImage', chosenImage);
-            sessionStorage.setItem('selectedName', nameInput ? nameInput.value.trim() : '');
+            sessionStorage.setItem('selectedName', selectedName);
+            localStorage.setItem('selectedImage', chosenImage);
+            localStorage.setItem('selectedName', selectedName);
             preloadImage(chosenImage);
             if (warningText) {
               warningText.classList.remove('show');

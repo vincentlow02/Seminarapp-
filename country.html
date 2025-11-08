@@ -82,8 +82,8 @@
 
     (function () {
 
-      const storedImage = sessionStorage.getItem('selectedImage');
-      const storedName = sessionStorage.getItem('selectedName');
+      const storedImage = sessionStorage.getItem('selectedImage') || localStorage.getItem('selectedImage');
+      const storedName = sessionStorage.getItem('selectedName') || localStorage.getItem('selectedName');
 
       if (storedImage) {
         const imageElement = document.getElementById('countryImage');
@@ -91,8 +91,12 @@
       }
 
       const userNameElement = document.getElementById('userName');
-      if (userNameElement && storedName) {
-        userNameElement.textContent = storedName;
+      if (userNameElement) {
+        if (storedName && storedName.trim().length > 0) {
+          userNameElement.textContent = storedName;
+        } else {
+          userNameElement.textContent = '';
+        }
       }
 
       const timestampElement = document.getElementById('timestamp');
