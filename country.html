@@ -172,7 +172,7 @@
         }
         try {
           const canvas = await captureCanvas();
-          const cropRatio = 0.04;
+          const cropRatio = 0.07;
           const cropCanvas = document.createElement('canvas');
           const cropWidth = Math.floor(canvas.width * (1 - cropRatio));
           const cropHeight = canvas.height;
