@@ -466,6 +466,28 @@
         other: ['other/au.svg', 'other/bkk.svg', 'other/ca.svg', 'other/cam.svg', 'other/ch.svg', 'other/CN.svg', 'other/fiji.svg', 'other/hk.svg', 'other/IND.svg', 'other/italy.svg', 'other/jp.svg', 'other/kl.svg', 'other/kr.svg', 'other/no.svg', 'other/nz.svg', 'other/other.svg', 'other/other2.svg', 'other/other3.svg', 'other/pa.svg', 'other/paris.svg', 'other/sg.svg', 'other/TW.svg', 'other/uk.svg', 'other/us.svg', 'other/vn.svg'],
       };
 
+      const preloadCache = new Set();
+
+      function preloadImage(src) {
+        if (preloadCache.has(src)) {
+          return;
+        }
+        const img = new Image();
+        img.src = src;
+        preloadCache.add(src);
+      }
+
+      (function warmupImages() {
+        Object.keys(imageMap).forEach(function(regionKey) {
+          const list = imageMap[regionKey];
+          if (Array.isArray(list)) {
+            list.forEach(function(path) {
+              preloadImage(path);
+            });
+          }
+        });
+      })();
+
       // blackbutton 点击事件：只有选中按钮且输入名字后才能跳转
       blackButton.addEventListener('click', function() {
         const activeWrap = document.querySelector('.btn-wrap.active');
@@ -486,6 +508,7 @@
             if (nameInput) {
               url.searchParams.set('name', nameInput.value.trim());
             }
+            preloadImage(chosenImage);
             if (warningText) {
               warningText.classList.remove('show');
               warningText.textContent = '';
