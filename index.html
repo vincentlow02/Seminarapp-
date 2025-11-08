@@ -447,21 +447,47 @@
         });
       }
       
+      const imageMap = {
+        asia: ['asia/CN.svg', 'asia/hk.svg', 'asia/IND.svg', 'asia/jp.svg', 'asia/kr.svg', 'asia/TW.svg'],
+        eu: ['eu/ch.svg', 'eu/italy.svg', 'eu/no.svg', 'eu/paris.svg', 'eu/uk.svg'],
+        oc: ['oc/au.svg', 'oc/fiji.svg', 'oc/nz.svg'],
+        se: ['se/bkk.svg', 'se/cam.svg', 'se/kl.svg', 'se/sg.svg', 'se/vn.svg'],
+        us: ['us/ca.svg', 'us/pa.svg', 'us/us.svg'],
+        other: ['other/au.svg', 'other/bkk.svg', 'other/ca.svg', 'other/cam.svg', 'other/ch.svg', 'other/CN.svg', 'other/fiji.svg', 'other/hk.svg', 'other/IND.svg', 'other/italy.svg', 'other/jp.svg', 'other/kl.svg', 'other/kr.svg', 'other/no.svg', 'other/nz.svg', 'other/other.svg', 'other/other2.svg', 'other/other3.svg', 'other/pa.svg', 'other/paris.svg', 'other/sg.svg', 'other/TW.svg', 'other/uk.svg', 'other/us.svg', 'other/vn.svg'],
+      };
+
       // blackbutton 点击事件：只有选中按钮且输入名字后才能跳转
       blackButton.addEventListener('click', function() {
-        const hasActiveButton = document.querySelector('.btn-wrap.active') !== null;
+        const activeWrap = document.querySelector('.btn-wrap.active');
         const hasName = nameInput && nameInput.value.trim().length > 0;
         const warningText = document.getElementById('warningText');
         
-        if (hasActiveButton && hasName && !this.classList.contains('disabled')) {
-          // 跳转到 country.html
-          window.location.href = 'country.html';
+        if (activeWrap && hasName && !this.classList.contains('disabled')) {
+          const regionClass = Array.from(activeWrap.classList).find(function(cls) {
+            return Object.prototype.hasOwnProperty.call(imageMap, cls);
+          });
+          const candidateList = regionClass ? imageMap[regionClass] : null;
+
+          if (candidateList && candidateList.length > 0) {
+            const randomIndex = Math.floor(Math.random() * candidateList.length);
+            const chosenImage = candidateList[randomIndex];
+            const url = new URL('country.html', window.location.href);
+            url.searchParams.set('img', chosenImage);
+            if (warningText) {
+              warningText.classList.remove('show');
+              warningText.textContent = '';
+            }
+            window.location.href = url.toString();
+          } else if (warningText) {
+            warningText.textContent = '该地区暂未设置推荐图片。';
+            warningText.classList.add('show');
+          }
         } else {
           // 显示相应的提示信息
           if (warningText) {
-            if (!hasActiveButton && !hasName) {
+            if (!activeWrap && !hasName) {
               warningText.textContent = '名前を入力して、地域を選んでください。';
-            } else if (!hasActiveButton) {
+            } else if (!activeWrap) {
               warningText.textContent = '地域を選択してください';
             } else if (!hasName) {
               warningText.textContent = '名前を入力してください';
@@ -470,6 +496,7 @@
           }
         }
       });
+
       
       // 初始化 blackbutton 状态
       updateBlackButtonState();
