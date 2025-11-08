@@ -188,78 +188,94 @@
         if (!captureArea) {
           return;
         }
-        if (typeof window.html2canvas !== 'function') {
-          await new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-            script.onload = resolve;
-            script.onerror = () => reject(new Error('failed to load html2canvas'));
-            document.head.appendChild(script);
-          });
-        }
-
-        const captureCanvas = async () => {
-          return window.html2canvas(captureArea, {
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            scale: Math.min(window.devicePixelRatio || 1.5, 2),
-            logging: false
-          });
-        };
-
+        const cacheKey = `snapshot:${storedImage || ''}:${storedName || ''}`;
+        const cachedDataUrl = sessionStorage.getItem(cacheKey);
         const isTablet = window.innerWidth >= 768;
         const originalNameLeft = userNameElement ? userNameElement.style.left : '';
         const originalTimestampLeft = timestampElement ? timestampElement.style.left : '';
         const cropRatio = isTablet ? 0.08 : 0.17;
-        if (!isTablet) {
-          const adjustedCenterPercent = `${(1 - cropRatio) * 50}%`;
-          if (userNameElement) {
-            userNameElement.style.left = adjustedCenterPercent;
+        let dataUrl = cachedDataUrl;
+
+        if (!cachedDataUrl) {
+          if (typeof window.html2canvas !== 'function') {
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+              script.onload = resolve;
+              script.onerror = () => reject(new Error('failed to load html2canvas'));
+              document.head.appendChild(script);
+            });
           }
-          if (timestampElement) {
-            timestampElement.style.left = adjustedCenterPercent;
+
+          const captureCanvas = async () => {
+            return window.html2canvas(captureArea, {
+              useCORS: true,
+              backgroundColor: '#ffffff',
+              scale: Math.min(window.devicePixelRatio || 1.5, 2),
+              logging: false
+            });
+          };
+
+          if (!isTablet) {
+            const adjustedCenterPercent = `${(1 - cropRatio) * 50}%`;
+            if (userNameElement) {
+              userNameElement.style.left = adjustedCenterPercent;
+            }
+            if (timestampElement) {
+              timestampElement.style.left = adjustedCenterPercent;
+            }
           }
-        }
-        try {
-          const canvas = await captureCanvas();
-          const cropCanvas = document.createElement('canvas');
-          const cropWidth = Math.floor(canvas.width * (1 - cropRatio));
-          const cropHeight = canvas.height;
-          const cropStartX = isTablet ? Math.max(0, Math.floor((canvas.width - cropWidth) / 2)) : 0;
-          cropCanvas.width = cropWidth;
-          cropCanvas.height = cropHeight;
-          const cropCtx = cropCanvas.getContext('2d');
-          if (cropCtx) {
-            cropCtx.drawImage(
-              canvas,
-              cropStartX,
-              0,
-              cropWidth,
-              cropHeight,
-              0,
-              0,
-              cropWidth,
-              cropHeight
-            );
-          }
-          const blob = await new Promise((resolve, reject) => {
-            cropCanvas.toBlob((result) => {
-              if (result) {
-                resolve(result);
-              } else {
-                reject(new Error('blob generation failed'));
-              }
-            }, 'image/png', 1.0);
-          });
-          if (!blob) {
-            alert('画像の生成に失敗しました。');
+
+          try {
+            const canvas = await captureCanvas();
+            const cropCanvas = document.createElement('canvas');
+            const cropWidth = Math.floor(canvas.width * (1 - cropRatio));
+            const cropHeight = canvas.height;
+            const cropStartX = isTablet ? Math.max(0, Math.floor((canvas.width - cropWidth) / 2)) : 0;
+            cropCanvas.width = cropWidth;
+            cropCanvas.height = cropHeight;
+            const cropCtx = cropCanvas.getContext('2d');
+            if (cropCtx) {
+              cropCtx.drawImage(
+                canvas,
+                cropStartX,
+                0,
+                cropWidth,
+                cropHeight,
+                0,
+                0,
+                cropWidth,
+                cropHeight
+              );
+            }
+            dataUrl = cropCanvas.toDataURL('image/png');
+            sessionStorage.setItem(cacheKey, dataUrl);
+          } catch (error) {
+            console.error('share failed', error);
+            if (userNameElement) {
+              userNameElement.style.left = originalNameLeft || '';
+            }
+            if (timestampElement) {
+              timestampElement.style.left = originalTimestampLeft || '';
+            }
             return;
           }
+        }
+
+        if (userNameElement) {
+          userNameElement.style.left = originalNameLeft || '';
+        }
+        if (timestampElement) {
+          timestampElement.style.left = originalTimestampLeft || '';
+        }
+
+        try {
+          const response = await fetch(dataUrl);
+          const blob = await response.blob();
           const file = new File([blob], 'recommendation.png', { type: 'image/png' });
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({ files: [file] });
           } else {
-            const dataUrl = cropCanvas.toDataURL('image/png');
             const tempLink = document.createElement('a');
             tempLink.href = dataUrl;
             tempLink.download = 'recommendation.png';
@@ -268,13 +284,6 @@
           }
         } catch (error) {
           console.error('share failed', error);
-        } finally {
-          if (userNameElement) {
-            userNameElement.style.left = originalNameLeft || '';
-          }
-          if (timestampElement) {
-            timestampElement.style.left = originalTimestampLeft || '';
-          }
         }
       }
 
