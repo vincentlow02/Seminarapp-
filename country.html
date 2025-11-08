@@ -105,28 +105,28 @@
 
     @media (min-width: 768px) {
       #captureArea {
-        left: 50%;
-        width: 834px;
-        height: 1112px;
-        transform: translateX(-50%);
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        transform: none;
       }
 
       #captureArea img {
-        top: -40px;
-        height: 110%;
-        transform: translate(-50%, -90px);
+        top: -20px;
+        height: 100%;
+        transform: translate(-50%, -60px);
       }
 
       .user-name {
-        bottom: 120px;
-        font-size: 22px;
-        max-width: 480px;
+        bottom: 90px;
+        font-size: 20px;
+        max-width: min(55vw, 400px);
       }
 
       .timestamp {
-        bottom: 88px;
-        font-size: 16px;
-        max-width: 480px;
+        bottom: 64px;
+        font-size: 14px;
+        max-width: min(55vw, 400px);
       }
     }
   </style>
@@ -201,7 +201,7 @@
         const isTablet = window.innerWidth >= 768;
         const originalNameLeft = userNameElement ? userNameElement.style.left : '';
         const originalTimestampLeft = timestampElement ? timestampElement.style.left : '';
-        const cropRatio = isTablet ? 0.04 : 0.17;
+        const cropRatio = isTablet ? 0.08 : 0.17;
         if (!isTablet) {
           const adjustedCenterPercent = `${(1 - cropRatio) * 50}%`;
           if (userNameElement) {
