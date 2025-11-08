@@ -176,13 +176,14 @@
           const cropCanvas = document.createElement('canvas');
           const cropWidth = Math.floor(canvas.width * (1 - cropRatio));
           const cropHeight = canvas.height;
+          const cropStartX = Math.max(0, canvas.width - cropWidth);
           cropCanvas.width = cropWidth;
           cropCanvas.height = cropHeight;
           const cropCtx = cropCanvas.getContext('2d');
           if (cropCtx) {
             cropCtx.drawImage(
               canvas,
-              0,
+              cropStartX,
               0,
               cropWidth,
               cropHeight,
