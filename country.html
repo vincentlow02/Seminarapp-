@@ -11,39 +11,60 @@
   <title>Country Page</title>
 
   <style>
-
     html, body {
-
       margin: 0;
-
       height: 100%;
-
+      width: 100%;
     }
-
-
 
     body {
-
+      position: relative;
       display: flex;
-
+      align-items: center;
+      justify-content: center;
+      width: 100vw;
+      height: 100vh;
+      background: #ffffff;
+      overflow: hidden;
+      color: #1f1f1f;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
-
-
 
     img {
-
-      width: 100vw;
-
-      height: 100vh;
-
-      object-fit: cover;
-
-      transform: translateY(-88px);
-
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
       display: block;
-
+      transform: translateY(-60px); 
     }
 
+    .user-name {
+      position: absolute;
+      bottom: 70px;
+      left: 37px;
+      max-width: 280px;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #333333;
+      pointer-events: none;
+      text-align: left;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+
+    .timestamp {
+      position: absolute;
+      bottom: 49px;
+      left: 37px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6a6a6a;
+      letter-spacing: 0.08em;
+      pointer-events: none;
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
   </style>
 
 </head>
@@ -51,6 +72,8 @@
 <body>
 
   <img id="countryImage" src="asia/jp.svg" alt="Country Image">
+  <div class="user-name" id="userName" aria-live="polite"></div>
+  <div class="timestamp" id="timestamp" aria-live="polite"></div>
 
   <script>
 
@@ -59,14 +82,33 @@
       const params = new URLSearchParams(window.location.search);
 
       const imgParam = params.get('img');
+      const nameParam = params.get('name');
 
       if (imgParam) {
-
         const imageElement = document.getElementById('countryImage');
-
         imageElement.src = imgParam;
-
       }
+
+      const userNameElement = document.getElementById('userName');
+      if (userNameElement && nameParam) {
+        userNameElement.textContent = nameParam;
+      }
+
+      const timestampElement = document.getElementById('timestamp');
+      function updateTimestamp() {
+        if (!timestampElement) return;
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        timestampElement.textContent = `${year}.${month}.${day} ${hours}:${minutes}:${seconds}`;
+      }
+
+      updateTimestamp();
+      setInterval(updateTimestamp, 1000);
 
     })();
 

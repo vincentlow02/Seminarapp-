@@ -268,6 +268,16 @@
     .warning-text.show {
       opacity: 1;
     }
+
+    .site-footer {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 16px;
+      color: #ffffff;
+      letter-spacing: 0.04em;
+    }
   </style>
 </head>
 <body>
@@ -473,6 +483,9 @@
             const chosenImage = candidateList[randomIndex];
             const url = new URL('country.html', window.location.href);
             url.searchParams.set('img', chosenImage);
+            if (nameInput) {
+              url.searchParams.set('name', nameInput.value.trim());
+            }
             if (warningText) {
               warningText.classList.remove('show');
               warningText.textContent = '';
@@ -529,6 +542,7 @@
       }
     });
 </script>
+  <footer class="site-footer">© 2025 Weave</footer>
 </body>
 </html>
  
