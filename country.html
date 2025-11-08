@@ -144,7 +144,6 @@
     <img src="share.svg" alt="" class="share-icon">
   </button>
 
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script>
 
     (function () {
@@ -185,19 +184,29 @@
       const shareButton = document.getElementById('shareButton');
       const captureArea = document.getElementById('captureArea');
 
-      async function captureCanvas() {
-        return html2canvas(captureArea, {
-          useCORS: true,
-          backgroundColor: '#ffffff',
-          scale: window.devicePixelRatio || 1,
-          logging: false
-        });
-      }
-
       async function shareCapture() {
         if (!captureArea) {
           return;
         }
+        if (typeof window.html2canvas !== 'function') {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+            script.onload = resolve;
+            script.onerror = () => reject(new Error('failed to load html2canvas'));
+            document.head.appendChild(script);
+          });
+        }
+
+        const captureCanvas = async () => {
+          return window.html2canvas(captureArea, {
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            scale: Math.min(window.devicePixelRatio || 1.5, 2),
+            logging: false
+          });
+        };
+
         const isTablet = window.innerWidth >= 768;
         const originalNameLeft = userNameElement ? userNameElement.style.left : '';
         const originalTimestampLeft = timestampElement ? timestampElement.style.left : '';
