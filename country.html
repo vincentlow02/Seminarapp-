@@ -89,9 +89,21 @@
   <div id="captureArea" class="flex flex-col h-full w-full bg-[#fafbfc]" style="background-image: radial-gradient(circle at 50% 0%, #ffffff 0%, #f1f3f5 100%);">
     
     <!-- Header -->
-    <header class="p-6 flex justify-between items-baseline relative z-20 w-full shrink-0">
+    <header class="p-6 flex justify-between items-center relative z-20 w-full shrink-0">
       <h1 class="text-3xl futura-light tracking-wide text-gray-900">Weave</h1>
-      <span class="text-[10px] font-medium tracking-[0.2em] text-gray-500 uppercase">Tokyo, JP</span>
+      <div class="flex items-center gap-x-3">
+        <span class="text-[10px] font-medium tracking-[0.2em] text-gray-500 uppercase translate-y-[1px]">Tokyo, JP</span>
+        <!-- Download button moved here and shrunk -->
+        <button id="shareButton" type="button" aria-label="ダウンロード"
+          class="w-[28px] h-[28px] bg-white border border-gray-100 rounded-full flex items-center justify-center shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)] hover:bg-gray-50 active:scale-95 transition-all duration-200 z-30 text-gray-500">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </button>
+      </div>
     </header>
 
     <!-- Main -->
@@ -102,17 +114,6 @@
         <div id="countryImageCard">
           <!-- Country SVG loaded by JS as background to support html2canvas cover accurately -->
           <div id="countryImage" title="Country Destination"></div>
-
-          <!-- Download button moved to top-right of card -->
-          <button id="shareButton" type="button" aria-label="ダウンロード"
-            class="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-[0_8px_20px_-5px_rgba(0,0,0,0.2)] hover:scale-110 active:scale-95 transition-all duration-200 z-30 text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-          </button>
 
           <!-- subtle bottom gradient -->
           <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/10 to-transparent pointer-events-none rounded-b-[2.5rem]"></div>
