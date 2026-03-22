@@ -293,21 +293,20 @@
           const originalShareDisplay = shareButton.style.display;
           shareButton.style.display = 'none';
 
-          // Use the REAL visible viewport dimensions (window.innerWidth/Height)
-          // This is the only reliable measurement on mobile — offsetHeight can
-          // differ from the visible area due to address bar, safe-area insets etc.
-          const vw = window.innerWidth;
-          const vh = window.innerHeight;
+          // Use documentElement.clientWidth/Height — this is the true CSS viewport
+          // (excludes iOS status bar, notch, and browser chrome that window.innerHeight includes)
+          const vw = document.documentElement.clientWidth;
+          const vh = document.documentElement.clientHeight;
 
           try {
-            // Capture document.body so the full page background + layout is included
-            const canvas = await window.html2canvas(document.body, {
+            // Capture captureArea (the flex wrapper that matches CSS viewport exactly)
+            const canvas = await window.html2canvas(captureArea, {
               useCORS:      true,
               backgroundColor: '#fafbfc',
               scale:        3,            // Retina quality
               logging:      false,
-              width:        vw,           // exact visible width
-              height:       vh,           // exact visible height
+              width:        vw,
+              height:       vh,
               windowWidth:  vw,
               windowHeight: vh,
               scrollX:      0,
