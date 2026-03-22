@@ -295,7 +295,8 @@
             localStorage.setItem('selectedImage', chosenImage);
             localStorage.setItem('selectedName', name);
             
-            window.location.href = 'country.html';
+            // Force browser to fetch the latest country.html instead of a cached version
+            window.location.href = 'country.html?v=' + new Date().getTime();
         });
 
         // --- Magnetic Button & Parallax Interaction ---
