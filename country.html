@@ -93,16 +93,6 @@
       <h1 class="text-3xl futura-light tracking-wide text-gray-900">Weave</h1>
       <div class="flex items-center gap-x-3">
         <span class="text-[10px] font-medium tracking-[0.2em] text-gray-500 uppercase translate-y-[1px]">Tokyo, JP</span>
-        <!-- Download button moved here and shrunk -->
-        <button id="shareButton" type="button" aria-label="ダウンロード"
-          class="w-[28px] h-[28px] bg-white border border-gray-100 rounded-full flex items-center justify-center shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)] hover:bg-gray-50 active:scale-95 transition-all duration-200 z-30 text-gray-500">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-        </button>
       </div>
     </header>
 
@@ -212,39 +202,24 @@
         'us/us.svg':    { label: 'USA',           code: 'US', jp: 'アメリカ',    flag: '🇺🇸', area: 'The Americas' },
       };
 
-      // Helper to avoid SVG canvas taint by converting image URLs to Base64 Data URIs natively
-      async function loadAsBase64(url, ...imgElements) {
-        try {
-          const res = await fetch(url);
-          const blob = await res.blob();
-          const reader = new FileReader();
-          reader.onloadend = () => { 
-            imgElements.forEach(el => el && (el.src = reader.result)); 
-          };
-          reader.readAsDataURL(blob);
-        } catch (e) {
-          console.error('Failed to load base64 image', e);
-          imgElements.forEach(el => el && (el.src = url)); // fallback
-        }
-      }
+      // ── Apply country image ─────────────────────────────────────────
+      const imgEl = document.getElementById('countryImage');
+      imgEl.src = storedImage;
 
       // ── Apply metadata ──────────────────────────────────────────────
       const meta = destinationMeta[storedImage];
-      const imgEl = document.getElementById('countryImage');
-      const destCodeEl = document.getElementById('destCode');
-
       if (meta) {
         document.getElementById('destLabel').textContent = meta.label;
-        destCodeEl.setAttribute('title', meta.label);
+        document.getElementById('destCode').src = storedImage;
+        document.getElementById('destCode').setAttribute('title', meta.label);
         document.getElementById('destJp').textContent    = meta.jp;
         document.getElementById('areaLabel').textContent = meta.area;
-        loadAsBase64(storedImage, imgEl, destCodeEl);
       } else {
         document.getElementById('destLabel').textContent = 'Unknown';
-        destCodeEl.setAttribute('title', 'Unknown');
+        document.getElementById('destCode').src = storedImage;
+        document.getElementById('destCode').setAttribute('title', 'Unknown');
         document.getElementById('destJp').textContent    = 'ほか';
         document.getElementById('areaLabel').textContent = 'Other';
-        loadAsBase64(storedImage, imgEl, destCodeEl);
       }
 
       // ── User name ──────────────────────────────────────────────────
@@ -264,93 +239,7 @@
       updateTimestamp();
       setInterval(updateTimestamp, 1000);
 
-      // ── Share / screenshot ─────────────────────────────────────────
-      const shareButton  = document.getElementById('shareButton');
-      const captureArea  = document.getElementById('captureArea');
 
-      // Preload html2canvas in the background while user reads the result
-      // so there is zero delay when they tap Share
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => {
-          if (typeof window.html2canvas !== 'function') {
-            const s = document.createElement('script');
-            s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-            document.head.appendChild(s);
-          }
-        }, { timeout: 3000 });
-      }
-
-      async function shareCapture() {
-        if (!captureArea) return;
-
-        // Smart cache: key by image + name + current minute so timestamp stays fresh
-        const nowMinute = new Date().toISOString().slice(0, 16); // e.g. "2026-03-22T15:23"
-        const cacheKey = `snap:${storedImage}:${storedName}:${nowMinute}`;
-        let dataUrl = sessionStorage.getItem(cacheKey);
-
-        if (!dataUrl) {
-          // Ensure html2canvas is loaded (may already be loaded from idle preload)
-          if (typeof window.html2canvas !== 'function') {
-            await new Promise((resolve, reject) => {
-              const s = document.createElement('script');
-              s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-              s.onload = resolve;
-              s.onerror = () => reject(new Error('failed to load html2canvas'));
-              document.head.appendChild(s);
-            });
-          }
-
-          // Hide share button during capture for a clean image
-          const originalShareDisplay = shareButton.style.display;
-          shareButton.style.display = 'none';
-
-          // Use documentElement.clientWidth/Height — this is the true CSS viewport
-          // (excludes iOS status bar, notch, and browser chrome that window.innerHeight includes)
-          const vw = document.documentElement.clientWidth;
-          const vh = document.documentElement.clientHeight;
-
-          try {
-            // Capture captureArea (the flex wrapper that matches CSS viewport exactly)
-            const canvas = await window.html2canvas(captureArea, {
-              useCORS:      true,
-              backgroundColor: '#fafbfc',
-              scale:        3,            // Retina quality
-              logging:      false,
-              width:        vw,
-              height:       vh,
-              windowWidth:  vw,
-              windowHeight: vh,
-              scrollX:      0,
-              scrollY:      0,
-              x:            0,
-              y:            0
-            });
-            dataUrl = canvas.toDataURL('image/png', 1.0);
-            // Cache for this minute — repeated share taps within 60s are instant
-            sessionStorage.setItem(cacheKey, dataUrl);
-          } catch (err) {
-            console.error('capture failed', err);
-            shareButton.style.display = originalShareDisplay;
-            return;
-          }
-
-          shareButton.style.display = originalShareDisplay;
-        }
-
-        try {
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = dataUrl;
-          a.download = `weave-${storedName || 'capture'}.png`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        } catch (err) {
-          console.error('download failed', err);
-        }
-      }
-
-      shareButton.addEventListener('click', shareCapture);
 
     })();
   </script>
