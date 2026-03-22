@@ -84,19 +84,20 @@
 
 <body class="text-gray-800 antialiased w-screen h-screen overflow-hidden flex flex-col">
 
-  <!-- Header -->
-  <header class="p-6 flex justify-between items-baseline relative z-20 w-full shrink-0">
-    <h1 class="text-3xl futura-light tracking-wide text-gray-900">Weave</h1>
-    <span class="text-[10px] font-medium tracking-[0.2em] text-gray-500 uppercase">Tokyo, JP</span>
-  </header>
+  <!-- Wrapper for full interface screenshot -->
+  <div id="captureArea" class="flex flex-col h-full w-full bg-[#fafbfc]" style="background-image: radial-gradient(circle at 50% 0%, #ffffff 0%, #f1f3f5 100%);">
+    
+    <!-- Header -->
+    <header class="p-6 flex justify-between items-baseline relative z-20 w-full shrink-0">
+      <h1 class="text-3xl futura-light tracking-wide text-gray-900">Weave</h1>
+      <span class="text-[10px] font-medium tracking-[0.2em] text-gray-500 uppercase">Tokyo, JP</span>
+    </header>
 
-  <!-- Main -->
-  <main class="flex-1 flex flex-col items-center relative w-full pb-12 px-6">
-
-    <div id="captureArea" class="w-full max-w-md flex flex-col items-center gap-y-0">
-
-      <!-- Country Image Card -->
-      <div class="animate-fadeup w-full" style="animation-delay:0s">
+    <!-- Main -->
+    <main class="flex-1 flex flex-col items-center relative w-full pb-12 px-6">
+      <div class="w-full max-w-md flex flex-col items-center gap-y-0">
+        <!-- Country Image Card -->
+        <div class="animate-fadeup w-full" style="animation-delay:0s">
         <div id="countryImageCard">
           <!-- Country SVG loaded by JS -->
           <img id="countryImage" src="" alt="Country">
@@ -161,17 +162,18 @@
         </div>
 
       </div>
-    </div><!-- end captureArea -->
+      </div><!-- end info-stack -->
+    </main>
 
-  </main>
+    <!-- Footer inside captureArea -->
+    <footer class="w-full px-8 pb-8 pt-2 flex items-center justify-end relative z-30 shrink-0 mt-auto opacity-40">
+      <div class="flex items-center gap-x-2.5">
+        <span class="text-[9px] font-light tracking-[0.2em] text-gray-400 uppercase leading-none">© 2025 Weave AI</span>
+        <img src="flight-takeoff-line.png" alt="Takeoff" class="w-4 h-4 grayscale leading-none">
+      </div>
+    </footer>
 
-  <!-- Footer -->
-  <footer class="w-full px-8 pb-8 pt-2 flex items-center justify-end relative z-30 shrink-0 mt-auto opacity-40">
-    <div class="flex items-center gap-x-2.5">
-      <span class="text-[9px] font-light tracking-[0.2em] text-gray-400 uppercase leading-none">© 2025 Weave AI</span>
-      <img src="flight-takeoff-line.png" alt="Takeoff" class="w-4 h-4 grayscale leading-none">
-    </div>
-  </footer>
+  </div><!-- end captureArea wrapper -->
 
   <script>
     (function () {
@@ -255,34 +257,50 @@
       async function shareCapture() {
         if (!captureArea) return;
 
-        const cacheKey = `snapshot:${storedImage}:${storedName}`;
-        let dataUrl = sessionStorage.getItem(cacheKey);
-
-        if (!dataUrl) {
-          if (typeof window.html2canvas !== 'function') {
-            await new Promise((resolve, reject) => {
-              const s = document.createElement('script');
-              s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-              s.onload = resolve;
-              s.onerror = () => reject(new Error('failed to load html2canvas'));
-              document.head.appendChild(s);
-            });
-          }
-
-          try {
-            const canvas = await window.html2canvas(captureArea, {
-              useCORS: true,
-              backgroundColor: '#fafbfc',
-              scale: Math.min(window.devicePixelRatio || 1.5, 2),
-              logging: false
-            });
-            dataUrl = canvas.toDataURL('image/png');
-            sessionStorage.setItem(cacheKey, dataUrl);
-          } catch (err) {
-            console.error('capture failed', err);
-            return;
-          }
+        // Force refresh to always pick up the latest timestamp (no cache)
+        if (typeof window.html2canvas !== 'function') {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+            s.onload = resolve;
+            s.onerror = () => reject(new Error('failed to load html2canvas'));
+            document.head.appendChild(s);
+          });
         }
+
+        // Hide share button during capture for a clean, premium image
+        const originalShareDisplay = shareButton.style.display;
+        shareButton.style.display = 'none';
+
+        // Get exact screen dimensions
+        const width = captureArea.offsetWidth;
+        const height = captureArea.offsetHeight;
+
+        let dataUrl;
+        try {
+          // Export the exact visible screen area
+          const canvas = await window.html2canvas(captureArea, {
+            useCORS: true,
+            backgroundColor: '#fafbfc',
+            scale: 3, // Very high quality
+            logging: false,
+            // Optimization to enforce exact mobile 1:1 screen ratio
+            width: width,
+            height: height,
+            windowWidth: width,
+            windowHeight: height,
+            x: 0, 
+            y: 0
+          });
+          dataUrl = canvas.toDataURL('image/png', 1.0);
+        } catch (err) {
+          console.error('capture failed', err);
+          shareButton.style.display = originalShareDisplay;
+          return;
+        }
+
+        // Restore share button
+        shareButton.style.display = originalShareDisplay;
 
         try {
           const res  = await fetch(dataUrl);
