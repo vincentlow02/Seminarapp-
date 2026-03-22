@@ -212,24 +212,39 @@
         'us/us.svg':    { label: 'USA',           code: 'US', jp: 'アメリカ',    flag: '🇺🇸', area: 'The Americas' },
       };
 
-      // ── Apply country image ─────────────────────────────────────────
-      const imgEl = document.getElementById('countryImage');
-      imgEl.src = storedImage;
+      // Helper to avoid SVG canvas taint by converting image URLs to Base64 Data URIs natively
+      async function loadAsBase64(url, ...imgElements) {
+        try {
+          const res = await fetch(url);
+          const blob = await res.blob();
+          const reader = new FileReader();
+          reader.onloadend = () => { 
+            imgElements.forEach(el => el && (el.src = reader.result)); 
+          };
+          reader.readAsDataURL(blob);
+        } catch (e) {
+          console.error('Failed to load base64 image', e);
+          imgElements.forEach(el => el && (el.src = url)); // fallback
+        }
+      }
 
       // ── Apply metadata ──────────────────────────────────────────────
       const meta = destinationMeta[storedImage];
+      const imgEl = document.getElementById('countryImage');
+      const destCodeEl = document.getElementById('destCode');
+
       if (meta) {
         document.getElementById('destLabel').textContent = meta.label;
-        document.getElementById('destCode').src = storedImage;
-        document.getElementById('destCode').setAttribute('title', meta.label);
+        destCodeEl.setAttribute('title', meta.label);
         document.getElementById('destJp').textContent    = meta.jp;
         document.getElementById('areaLabel').textContent = meta.area;
+        loadAsBase64(storedImage, imgEl, destCodeEl);
       } else {
         document.getElementById('destLabel').textContent = 'Unknown';
-        document.getElementById('destCode').src = storedImage;
-        document.getElementById('destCode').setAttribute('title', 'Unknown');
+        destCodeEl.setAttribute('title', 'Unknown');
         document.getElementById('destJp').textContent    = 'ほか';
         document.getElementById('areaLabel').textContent = 'Other';
+        loadAsBase64(storedImage, imgEl, destCodeEl);
       }
 
       // ── User name ──────────────────────────────────────────────────
