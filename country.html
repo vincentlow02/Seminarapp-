@@ -51,8 +51,9 @@
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      object-position: center;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
 
     /* Capture area: the whole card + info stack for screenshot */
@@ -99,11 +100,8 @@
         <!-- Country Image Card -->
         <div class="animate-fadeup w-full" style="animation-delay:0s">
         <div id="countryImageCard">
-          <!-- Country SVG loaded by JS: highest priority since it's above the fold -->
-          <img id="countryImage" src="" alt="Country"
-               fetchpriority="high"
-               decoding="async"
-               loading="eager">
+          <!-- Country SVG loaded by JS as background to support html2canvas cover accurately -->
+          <div id="countryImage" title="Country Destination"></div>
 
           <!-- Share button moved to top-right of card -->
           <button id="shareButton" type="button" aria-label="シェア"
@@ -149,9 +147,9 @@
           </div>
           <!-- Vertical Divider -->
           <div class="w-[1px] h-8 bg-gray-200"></div>
-          <!-- Thumbnail: lazy + async decode — not above fold, save bandwidth -->
+          <!-- Thumbnail -->
           <div class="overflow-hidden rounded-full w-10 h-10 border border-gray-100 shadow-sm flex-shrink-0" style="background:#f3f4f6">
-            <img id="destCode" src="" alt="" loading="lazy" decoding="async" class="w-full h-full object-cover object-center" />
+            <div id="destCode" class="w-full h-full bg-cover bg-center bg-no-repeat"></div>
           </div>
         </div>
 
@@ -218,20 +216,20 @@
 
       // ── Apply country image ─────────────────────────────────────────
       const imgEl = document.getElementById('countryImage');
-      imgEl.src = storedImage;
+      imgEl.style.backgroundImage = `url('${storedImage}')`;
 
       // ── Apply metadata ──────────────────────────────────────────────
       const meta = destinationMeta[storedImage];
       if (meta) {
         document.getElementById('destLabel').textContent = meta.label;
-        document.getElementById('destCode').src          = storedImage;
-        document.getElementById('destCode').alt          = meta.label;
+        document.getElementById('destCode').style.backgroundImage = `url('${storedImage}')`;
+        document.getElementById('destCode').setAttribute('title', meta.label);
         document.getElementById('destJp').textContent    = meta.jp;
         document.getElementById('areaLabel').textContent = meta.area;
       } else {
         document.getElementById('destLabel').textContent = 'Unknown';
-        document.getElementById('destCode').src          = storedImage;
-        document.getElementById('destCode').alt          = 'Unknown';
+        document.getElementById('destCode').style.backgroundImage = `url('${storedImage}')`;
+        document.getElementById('destCode').setAttribute('title', 'Unknown');
         document.getElementById('destJp').textContent    = 'ほか';
         document.getElementById('areaLabel').textContent = 'Other';
       }
