@@ -50,10 +50,10 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      height: auto;        /* html2canvas scaling fallback */
+      min-height: 100%;    /* prevents gaps if image is too short */
+      object-fit: cover;
+      object-position: top;
     }
 
     /* Capture area: the whole card + info stack for screenshot */
@@ -112,8 +112,8 @@
         <!-- Country Image Card -->
         <div class="animate-fadeup w-full" style="animation-delay:0s">
         <div id="countryImageCard">
-          <!-- Country SVG loaded by JS as background to support html2canvas cover accurately -->
-          <div id="countryImage" title="Country Destination"></div>
+          <!-- Country SVG loaded by JS. Use img tag to prevent taint, CSS handles the cover crop. -->
+          <img id="countryImage" src="" alt="Country" fetchpriority="high" decoding="async" loading="eager" crossorigin="anonymous">
 
           <!-- subtle bottom gradient -->
           <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/10 to-transparent pointer-events-none rounded-b-[2.5rem]"></div>
@@ -146,8 +146,8 @@
           <!-- Vertical Divider -->
           <div class="w-[1px] h-8 bg-gray-200"></div>
           <!-- Thumbnail -->
-          <div class="overflow-hidden rounded-full w-10 h-10 border border-gray-100 shadow-sm flex-shrink-0" style="background:#f3f4f6">
-            <div id="destCode" class="w-full h-full bg-cover bg-center bg-no-repeat"></div>
+          <div class="overflow-hidden rounded-full w-10 h-10 border border-gray-100 shadow-sm flex-shrink-0 relative" style="background:#f3f4f6">
+            <img id="destCode" src="" alt="" loading="lazy" decoding="async" class="absolute top-0 left-0 w-full h-auto min-h-full object-cover object-top" crossorigin="anonymous">
           </div>
         </div>
 
@@ -214,19 +214,19 @@
 
       // ── Apply country image ─────────────────────────────────────────
       const imgEl = document.getElementById('countryImage');
-      imgEl.style.backgroundImage = `url('${storedImage}')`;
+      imgEl.src = storedImage;
 
       // ── Apply metadata ──────────────────────────────────────────────
       const meta = destinationMeta[storedImage];
       if (meta) {
         document.getElementById('destLabel').textContent = meta.label;
-        document.getElementById('destCode').style.backgroundImage = `url('${storedImage}')`;
+        document.getElementById('destCode').src = storedImage;
         document.getElementById('destCode').setAttribute('title', meta.label);
         document.getElementById('destJp').textContent    = meta.jp;
         document.getElementById('areaLabel').textContent = meta.area;
       } else {
         document.getElementById('destLabel').textContent = 'Unknown';
-        document.getElementById('destCode').style.backgroundImage = `url('${storedImage}')`;
+        document.getElementById('destCode').src = storedImage;
         document.getElementById('destCode').setAttribute('title', 'Unknown');
         document.getElementById('destJp').textContent    = 'ほか';
         document.getElementById('areaLabel').textContent = 'Other';
