@@ -99,8 +99,11 @@
         <!-- Country Image Card -->
         <div class="animate-fadeup w-full" style="animation-delay:0s">
         <div id="countryImageCard">
-          <!-- Country SVG loaded by JS -->
-          <img id="countryImage" src="" alt="Country">
+          <!-- Country SVG loaded by JS: highest priority since it's above the fold -->
+          <img id="countryImage" src="" alt="Country"
+               fetchpriority="high"
+               decoding="async"
+               loading="eager">
 
           <!-- Share button moved to top-right of card -->
           <button id="shareButton" type="button" aria-label="シェア"
@@ -146,9 +149,9 @@
           </div>
           <!-- Vertical Divider -->
           <div class="w-[1px] h-8 bg-gray-200"></div>
-          <!-- Right: Country SVG thumbnail -->
+          <!-- Thumbnail: lazy + async decode — not above fold, save bandwidth -->
           <div class="overflow-hidden rounded-full w-10 h-10 border border-gray-100 shadow-sm flex-shrink-0" style="background:#f3f4f6">
-            <img id="destCode" src="" alt="" class="w-full h-full object-cover object-center" />
+            <img id="destCode" src="" alt="" loading="lazy" decoding="async" class="w-full h-full object-cover object-center" />
           </div>
         </div>
 
@@ -254,53 +257,68 @@
       const shareButton  = document.getElementById('shareButton');
       const captureArea  = document.getElementById('captureArea');
 
+      // Preload html2canvas in the background while user reads the result
+      // so there is zero delay when they tap Share
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
+          if (typeof window.html2canvas !== 'function') {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+            document.head.appendChild(s);
+          }
+        }, { timeout: 3000 });
+      }
+
       async function shareCapture() {
         if (!captureArea) return;
 
-        // Force refresh to always pick up the latest timestamp (no cache)
-        if (typeof window.html2canvas !== 'function') {
-          await new Promise((resolve, reject) => {
-            const s = document.createElement('script');
-            s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-            s.onload = resolve;
-            s.onerror = () => reject(new Error('failed to load html2canvas'));
-            document.head.appendChild(s);
-          });
-        }
+        // Smart cache: key by image + name + current minute so timestamp stays fresh
+        const nowMinute = new Date().toISOString().slice(0, 16); // e.g. "2026-03-22T15:23"
+        const cacheKey = `snap:${storedImage}:${storedName}:${nowMinute}`;
+        let dataUrl = sessionStorage.getItem(cacheKey);
 
-        // Hide share button during capture for a clean, premium image
-        const originalShareDisplay = shareButton.style.display;
-        shareButton.style.display = 'none';
+        if (!dataUrl) {
+          // Ensure html2canvas is loaded (may already be loaded from idle preload)
+          if (typeof window.html2canvas !== 'function') {
+            await new Promise((resolve, reject) => {
+              const s = document.createElement('script');
+              s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+              s.onload = resolve;
+              s.onerror = () => reject(new Error('failed to load html2canvas'));
+              document.head.appendChild(s);
+            });
+          }
 
-        // Get exact screen dimensions
-        const width = captureArea.offsetWidth;
-        const height = captureArea.offsetHeight;
+          // Hide share button during capture for a clean image
+          const originalShareDisplay = shareButton.style.display;
+          shareButton.style.display = 'none';
 
-        let dataUrl;
-        try {
-          // Export the exact visible screen area
-          const canvas = await window.html2canvas(captureArea, {
-            useCORS: true,
-            backgroundColor: '#fafbfc',
-            scale: 3, // Very high quality
-            logging: false,
-            // Optimization to enforce exact mobile 1:1 screen ratio
-            width: width,
-            height: height,
-            windowWidth: width,
-            windowHeight: height,
-            x: 0, 
-            y: 0
-          });
-          dataUrl = canvas.toDataURL('image/png', 1.0);
-        } catch (err) {
-          console.error('capture failed', err);
+          // Exact screen dimensions
+          const width  = captureArea.offsetWidth;
+          const height = captureArea.offsetHeight;
+
+          try {
+            const canvas = await window.html2canvas(captureArea, {
+              useCORS:     true,
+              backgroundColor: '#fafbfc',
+              scale:       3,
+              logging:     false,
+              width, height,
+              windowWidth: width,
+              windowHeight: height,
+              x: 0, y: 0
+            });
+            dataUrl = canvas.toDataURL('image/png', 1.0);
+            // Cache for this minute — share taps within 60s are instant
+            sessionStorage.setItem(cacheKey, dataUrl);
+          } catch (err) {
+            console.error('capture failed', err);
+            shareButton.style.display = originalShareDisplay;
+            return;
+          }
+
           shareButton.style.display = originalShareDisplay;
-          return;
         }
-
-        // Restore share button
-        shareButton.style.display = originalShareDisplay;
 
         try {
           const res  = await fetch(dataUrl);

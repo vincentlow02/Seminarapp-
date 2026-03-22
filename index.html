@@ -294,8 +294,12 @@
             sessionStorage.setItem('selectedName', name);
             localStorage.setItem('selectedImage', chosenImage);
             localStorage.setItem('selectedName', name);
-            
-            // Force browser to fetch the latest country.html instead of a cached version
+
+            // Warm the browser image cache BEFORE navigating so hero loads instantly
+            const preloadImg = new Image();
+            preloadImg.src = chosenImage;
+            // Navigate immediately — browser fetches image in parallel with navigation
+            // Use timestamp to bust any stale cache of country.html itself
             window.location.href = 'country.html?v=' + new Date().getTime();
         });
 
