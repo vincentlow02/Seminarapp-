@@ -1,137 +1,78 @@
 <!DOCTYPE html>
-
 <html lang="ja">
-
 <head>
-
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Country Page</title>
-
+  <title>Weave — Your Destination</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      width: 100%;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500&display=swap');
 
     body {
-      margin: 0;
-      min-height: 100vh;
-      background: #ffffff;
-      color: #1f1f1f;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      font-family: 'Jost', sans-serif;
+      background-color: #fafbfc;
+      background-image: radial-gradient(circle at 50% 0%, #ffffff 0%, #f1f3f5 100%);
     }
 
-    #captureArea {
-      position: fixed;
-      top: 0;
-      left: -1vw;
-      width: 102vw;
-      height: 100vh;
+    .futura-light {
+      font-family: 'Jost', sans-serif;
+      font-weight: 200;
+      letter-spacing: 0.05em;
+    }
+
+    @keyframes subtle-pulse {
+      0%   { box-shadow: 0 10px 25px -5px rgba(26,26,26,0.4), 0 0 0 0 rgba(26,26,26,0.1); }
+      70%  { box-shadow: 0 10px 25px -5px rgba(26,26,26,0.4), 0 0 0 15px rgba(26,26,26,0); }
+      100% { box-shadow: 0 10px 25px -5px rgba(26,26,26,0.4), 0 0 0 0 rgba(26,26,26,0); }
+    }
+
+    .pulse-hover:hover {
+      animation: subtle-pulse 2s infinite;
+    }
+
+    ::-webkit-scrollbar { display: none; }
+    body { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Image card: country svg fills the card */
+    #countryImageCard {
+      width: 100%;
+      height: 450px; /* Adjusted height per user request */
+      border-radius: 2.5rem;
       overflow: hidden;
-      background: #ffffff;
+      position: relative;
+      box-shadow: 0 15px 35px -10px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.6);
+      background: #f0f2f4;
     }
 
-    #captureArea img {
+    #countryImage {
       position: absolute;
-      top: -24px;
-      left: 50%;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center center;
-      display: block;
-      transform: translate(-50%, -90px);
+      object-position: center;
     }
 
-    .user-name {
-      position: absolute;
-      bottom:70px;
-      left: 50%;
-      max-width: min(69vw, 300px);
-      font-size: 17px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      color: #333333;
-      pointer-events: none;
-      text-align: center;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      transform: translateX(-50%);
-      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    /* Capture area: the whole card + info stack for screenshot */
+    #captureArea {
+      width: 100%;
     }
 
-    .timestamp {
-      position: absolute;
-      bottom: 53px;
-      left: 50%;
-      max-width: min(70vw, 320px);
-      font-size: 12px;
-      font-weight: 500;
-      color: #6a6a6a;
-      letter-spacing: 0.08em;
-      pointer-events: none;
-      text-align: center;
-      transform: translateX(-50%);
-      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-
-    .share-button {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 0;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.25));
+    .animate-fadeup {
+      animation: fadeUp 0.6s ease both;
     }
-
-    .share-button:active {
-      transform: translateY(1px);
-    }
-
-    .share-icon {
-      width: 40px;
-      height: 40px;
-      pointer-events: none;
-    }
-
-    @media (min-width: 768px) {
-      #captureArea {
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        transform: none;
-      }
-
-      #captureArea img {
-        top: -20px;
-        height: 100%;
-        transform: translate(-50%, -60px);
-      }
-
-      .user-name {
-        bottom: 90px;
-        font-size: 20px;
-        max-width: min(55vw, 400px);
-      }
-
-      .timestamp {
-        bottom: 64px;
-        font-size: 14px;
-        max-width: min(55vw, 400px);
-      }
-    }
+    .animate-fadeup-2 { animation-delay: 0.1s; }
+    .animate-fadeup-3 { animation-delay: 0.2s; }
+    .animate-fadeup-4 { animation-delay: 0.3s; }
   </style>
 
-  <!-- Google tag (gtag.js) -->
+  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YYSR7BXQQQ"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -141,169 +82,229 @@
   </script>
 </head>
 
-<body>
+<body class="text-gray-800 antialiased w-screen h-screen overflow-hidden flex flex-col">
 
-  <div id="captureArea">
-    <img id="countryImage" src="asia/jp.svg" alt="Country Image">
-    <div class="user-name" id="userName" aria-live="polite"></div>
-    <div class="timestamp" id="timestamp" aria-live="polite"></div>
-  </div>
-  <button class="share-button" id="shareButton" type="button" aria-label="シェア">
-    <img src="share.svg" alt="" class="share-icon">
-  </button>
+  <!-- Header -->
+  <header class="p-6 flex justify-between items-baseline relative z-20 w-full shrink-0">
+    <h1 class="text-3xl futura-light tracking-wide text-gray-900">Weave</h1>
+    <span class="text-[10px] font-medium tracking-[0.2em] text-gray-500 uppercase">Tokyo, JP</span>
+  </header>
+
+  <!-- Main -->
+  <main class="flex-1 flex flex-col items-center relative w-full pb-12 px-6">
+
+    <div id="captureArea" class="w-full max-w-md flex flex-col items-center gap-y-0">
+
+      <!-- Country Image Card -->
+      <div class="animate-fadeup w-full" style="animation-delay:0s">
+        <div id="countryImageCard">
+          <!-- Country SVG loaded by JS -->
+          <img id="countryImage" src="" alt="Country">
+
+          <!-- Share button moved to top-right of card -->
+          <button id="shareButton" type="button" aria-label="シェア"
+            class="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-[0_8px_20px_-5px_rgba(0,0,0,0.2)] hover:scale-110 active:scale-95 transition-all duration-200 z-30">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+              class="text-gray-700">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+          </button>
+
+          <!-- subtle bottom gradient -->
+          <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/10 to-transparent pointer-events-none rounded-b-[2.5rem]"></div>
+        </div>
+      </div>
+
+      <!-- Connector line (lengthened to push content down) -->
+      <div class="w-[1px] h-12 bg-[#e2e5e9]"></div>
+
+      <!-- Info Stack -->
+      <div class="flex flex-col items-center w-full gap-y-7">
+
+        <!-- Area pill -->
+        <div class="animate-fadeup animate-fadeup-2 relative flex flex-col items-center">
+          <div class="absolute -top-3.5 bg-[#fafbfc] px-4 py-0.5 rounded-full z-20 flex items-baseline space-x-2 border border-gray-100 shadow-[0_2px_6px_-2px_rgba(0,0,0,0.07)] whitespace-nowrap">
+            <span class="futura-light text-xs text-gray-800">地域</span>
+            <span class="text-[8px] font-medium tracking-widest text-gray-400 uppercase">Area</span>
+          </div>
+          <div class="bg-white/90 backdrop-blur-md border border-gray-100 rounded-full py-3 px-7 flex items-center justify-center space-x-3 shadow-[0_4px_15px_-5px_rgba(0,0,0,0.05)]">
+            <span id="areaLabel" class="text-[11px] font-medium tracking-wider text-gray-600 uppercase">—</span>
+          </div>
+        </div>
+
+        <div class="animate-fadeup animate-fadeup-3 flex items-center justify-center gap-x-5">
+          <!-- Left: Country name + Japanese -->
+          <div class="flex flex-col items-start">
+            <span id="destLabel" class="text-base font-medium tracking-[0.15em] text-gray-800 uppercase leading-tight"></span>
+            <span id="destJp" class="futura-light text-[10px] text-gray-400 tracking-widest mt-0.5"></span>
+          </div>
+          <!-- Vertical Divider -->
+          <div class="w-[1px] h-8 bg-gray-200"></div>
+          <!-- Right: Country SVG thumbnail -->
+          <div class="overflow-hidden rounded-full w-10 h-10 border border-gray-100 shadow-sm flex-shrink-0" style="background:#f3f4f6">
+            <img id="destCode" src="" alt="" class="w-full h-full object-cover object-center" />
+          </div>
+        </div>
+
+        <!-- Dashed Divider -->
+        <div class="w-48 border-t border-dashed border-gray-400 -my-2 animate-fadeup animate-fadeup-3"></div>
+
+        <!-- Minimal Record Display (no box, no label) -->
+        <div class="animate-fadeup animate-fadeup-4 flex flex-col items-center pt-2">
+          <span id="userName" class="text-[12px] font-medium tracking-wide text-gray-700 leading-none mb-1.5 uppercase tracking-widest"></span>
+          <span id="timestamp" class="futura-light text-[9px] tracking-[0.1em] text-gray-400"></span>
+        </div>
+
+      </div>
+    </div><!-- end captureArea -->
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full px-8 pb-8 pt-2 flex items-center justify-end relative z-30 shrink-0 mt-auto opacity-40">
+    <div class="flex items-center gap-x-2.5">
+      <span class="text-[9px] font-light tracking-[0.2em] text-gray-400 uppercase leading-none">© 2025 Weave AI</span>
+      <img src="flight-takeoff-line.png" alt="Takeoff" class="w-4 h-4 grayscale leading-none">
+    </div>
+  </footer>
 
   <script>
-
     (function () {
 
-      const storedImage = sessionStorage.getItem('selectedImage') || localStorage.getItem('selectedImage');
-      const storedName = sessionStorage.getItem('selectedName') || localStorage.getItem('selectedName');
+      // ── Data from storage ──────────────────────────────────────────
+      const storedImage = sessionStorage.getItem('selectedImage') || localStorage.getItem('selectedImage') || 'asia/jp.svg';
+      const storedName  = sessionStorage.getItem('selectedName')  || localStorage.getItem('selectedName')  || '';
 
-      if (storedImage) {
-        const imageElement = document.getElementById('countryImage');
-        imageElement.src = storedImage;
+      // ── Country / destination metadata map ─────────────────────────
+      const destinationMeta = {
+        // Asia
+        'asia/CN.svg':  { label: 'China',        code: 'CN', jp: '中国',        flag: '🇨🇳', area: 'Asia' },
+        'asia/hk.svg':  { label: 'Hong Kong',    code: 'HK', jp: '香港',        flag: '🇭🇰', area: 'Asia' },
+        'asia/IND.svg': { label: 'India',         code: 'IN', jp: 'インド',      flag: '🇮🇳', area: 'Asia' },
+        'asia/jp.svg':  { label: 'Japan',         code: 'JP', jp: '日本',        flag: '🇯🇵', area: 'Asia' },
+        'asia/kr.svg':  { label: 'Korea',         code: 'KR', jp: '韓国',        flag: '🇰🇷', area: 'Asia' },
+        'asia/TW.svg':  { label: 'Taiwan',        code: 'TW', jp: '台湾',        flag: '🇹🇼', area: 'Asia' },
+        // Europe
+        'eu/ch.svg':    { label: 'Switzerland',   code: 'CH', jp: 'スイス',      flag: '🇨🇭', area: 'Europe' },
+        'eu/italy.svg': { label: 'Italy',         code: 'IT', jp: 'イタリア',    flag: '🇮🇹', area: 'Europe' },
+        'eu/no.svg':    { label: 'Norway',        code: 'NO', jp: 'ノルウェー',  flag: '🇳🇴', area: 'Europe' },
+        'eu/paris.svg': { label: 'France',        code: 'FR', jp: 'フランス',    flag: '🇫🇷', area: 'Europe' },
+        'eu/uk.svg':    { label: 'UK',            code: 'GB', jp: 'イギリス',    flag: '🇬🇧', area: 'Europe' },
+        // Oceania
+        'oc/au.svg':    { label: 'Australia',     code: 'AU', jp: 'オーストラリア', flag: '🇦🇺', area: 'Oceania' },
+        'oc/fiji.svg':  { label: 'Fiji',          code: 'FJ', jp: 'フィジー',     flag: '🇫🇯', area: 'Oceania' },
+        'oc/nz.svg':    { label: 'New Zealand',   code: 'NZ', jp: 'ニュージーランド', flag: '🇳🇿', area: 'Oceania' },
+        // SE Asia
+        'se/bkk.svg':   { label: 'Thailand',      code: 'TH', jp: 'タイ',        flag: '🇹🇭', area: 'SE Asia' },
+        'se/cam.svg':   { label: 'Cambodia',      code: 'KH', jp: 'カンボジア',  flag: '🇰🇭', area: 'SE Asia' },
+        'se/kl.svg':    { label: 'Malaysia',      code: 'MY', jp: 'マレーシア',  flag: '🇲🇾', area: 'SE Asia' },
+        'se/sg.svg':    { label: 'Singapore',     code: 'SG', jp: 'シンガポール', flag: '🇸🇬', area: 'SE Asia' },
+        'se/vn.svg':    { label: 'Vietnam',       code: 'VN', jp: 'ベトナム',    flag: '🇻🇳', area: 'SE Asia' },
+        // Americas
+        'us/ca.svg':    { label: 'Canada',        code: 'CA', jp: 'カナダ',      flag: '🇨🇦', area: 'The Americas' },
+        'us/pa.svg':    { label: 'Panama',        code: 'PA', jp: 'パナマ',      flag: '🇵🇦', area: 'The Americas' },
+        'us/us.svg':    { label: 'USA',           code: 'US', jp: 'アメリカ',    flag: '🇺🇸', area: 'The Americas' },
+      };
+
+      // ── Apply country image ─────────────────────────────────────────
+      const imgEl = document.getElementById('countryImage');
+      imgEl.src = storedImage;
+
+      // ── Apply metadata ──────────────────────────────────────────────
+      const meta = destinationMeta[storedImage];
+      if (meta) {
+        document.getElementById('destLabel').textContent = meta.label;
+        document.getElementById('destCode').src          = storedImage;
+        document.getElementById('destCode').alt          = meta.label;
+        document.getElementById('destJp').textContent    = meta.jp;
+        document.getElementById('areaLabel').textContent = meta.area;
+      } else {
+        document.getElementById('destLabel').textContent = 'Unknown';
+        document.getElementById('destCode').src          = storedImage;
+        document.getElementById('destCode').alt          = 'Unknown';
+        document.getElementById('destJp').textContent    = 'ほか';
+        document.getElementById('areaLabel').textContent = 'Other';
       }
 
-      const userNameElement = document.getElementById('userName');
-      if (userNameElement) {
-        if (storedName && storedName.trim().length > 0) {
-          userNameElement.textContent = storedName;
-        } else {
-          userNameElement.textContent = '';
-        }
-      }
+      // ── User name ──────────────────────────────────────────────────
+      const nameEl = document.getElementById('userName');
+      nameEl.textContent = storedName || '';
 
-      const timestampElement = document.getElementById('timestamp');
+      // ── Live timestamp ─────────────────────────────────────────────
+      const tsEl = document.getElementById('timestamp');
       function updateTimestamp() {
-        if (!timestampElement) return;
+        if (!tsEl) return;
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        timestampElement.textContent = `${year}.${month}.${day} ${hours}:${minutes}:${seconds}`;
+        const pad = n => String(n).padStart(2, '0');
+        tsEl.textContent =
+          `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ` +
+          `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
       }
-
       updateTimestamp();
       setInterval(updateTimestamp, 1000);
 
-      const shareButton = document.getElementById('shareButton');
-      const captureArea = document.getElementById('captureArea');
+      // ── Share / screenshot ─────────────────────────────────────────
+      const shareButton  = document.getElementById('shareButton');
+      const captureArea  = document.getElementById('captureArea');
 
       async function shareCapture() {
-        if (!captureArea) {
-          return;
-        }
-        const cacheKey = `snapshot:${storedImage || ''}:${storedName || ''}`;
-        const cachedDataUrl = sessionStorage.getItem(cacheKey);
-        const isTablet = window.innerWidth >= 768;
-        const originalNameLeft = userNameElement ? userNameElement.style.left : '';
-        const originalTimestampLeft = timestampElement ? timestampElement.style.left : '';
-        const cropRatio = isTablet ? 0.08 : 0.17;
-        let dataUrl = cachedDataUrl;
+        if (!captureArea) return;
 
-        if (!cachedDataUrl) {
+        const cacheKey = `snapshot:${storedImage}:${storedName}`;
+        let dataUrl = sessionStorage.getItem(cacheKey);
+
+        if (!dataUrl) {
           if (typeof window.html2canvas !== 'function') {
             await new Promise((resolve, reject) => {
-              const script = document.createElement('script');
-              script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-              script.onload = resolve;
-              script.onerror = () => reject(new Error('failed to load html2canvas'));
-              document.head.appendChild(script);
+              const s = document.createElement('script');
+              s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+              s.onload = resolve;
+              s.onerror = () => reject(new Error('failed to load html2canvas'));
+              document.head.appendChild(s);
             });
-          }
-
-          const captureCanvas = async () => {
-            return window.html2canvas(captureArea, {
-              useCORS: true,
-              backgroundColor: '#ffffff',
-              scale: Math.min(window.devicePixelRatio || 1.5, 2),
-              logging: false
-            });
-          };
-
-          if (!isTablet) {
-            const adjustedCenterPercent = `${(1 - cropRatio) * 50}%`;
-            if (userNameElement) {
-              userNameElement.style.left = adjustedCenterPercent;
-            }
-            if (timestampElement) {
-              timestampElement.style.left = adjustedCenterPercent;
-            }
           }
 
           try {
-            const canvas = await captureCanvas();
-            const cropCanvas = document.createElement('canvas');
-            const cropWidth = Math.floor(canvas.width * (1 - cropRatio));
-            const cropHeight = canvas.height;
-            const cropStartX = isTablet ? Math.max(0, Math.floor((canvas.width - cropWidth) / 2)) : 0;
-            cropCanvas.width = cropWidth;
-            cropCanvas.height = cropHeight;
-            const cropCtx = cropCanvas.getContext('2d');
-            if (cropCtx) {
-              cropCtx.drawImage(
-                canvas,
-                cropStartX,
-                0,
-                cropWidth,
-                cropHeight,
-                0,
-                0,
-                cropWidth,
-                cropHeight
-              );
-            }
-            dataUrl = cropCanvas.toDataURL('image/png');
+            const canvas = await window.html2canvas(captureArea, {
+              useCORS: true,
+              backgroundColor: '#fafbfc',
+              scale: Math.min(window.devicePixelRatio || 1.5, 2),
+              logging: false
+            });
+            dataUrl = canvas.toDataURL('image/png');
             sessionStorage.setItem(cacheKey, dataUrl);
-          } catch (error) {
-            console.error('share failed', error);
-            if (userNameElement) {
-              userNameElement.style.left = originalNameLeft || '';
-            }
-            if (timestampElement) {
-              timestampElement.style.left = originalTimestampLeft || '';
-            }
+          } catch (err) {
+            console.error('capture failed', err);
             return;
           }
         }
 
-        if (userNameElement) {
-          userNameElement.style.left = originalNameLeft || '';
-        }
-        if (timestampElement) {
-          timestampElement.style.left = originalTimestampLeft || '';
-        }
-
         try {
-          const response = await fetch(dataUrl);
-          const blob = await response.blob();
-          const file = new File([blob], 'recommendation.png', { type: 'image/png' });
+          const res  = await fetch(dataUrl);
+          const blob = await res.blob();
+          const file = new File([blob], 'weave-recommendation.png', { type: 'image/png' });
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({ files: [file] });
           } else {
-            const tempLink = document.createElement('a');
-            tempLink.href = dataUrl;
-            tempLink.download = 'recommendation.png';
-            tempLink.click();
-            alert('このブラウザでは直接共有できないため、画像を保存しました。');
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = 'weave-recommendation.png';
+            a.click();
           }
-        } catch (error) {
-          console.error('share failed', error);
+        } catch (err) {
+          console.error('share failed', err);
         }
       }
 
-      if (shareButton) {
-        shareButton.addEventListener('click', shareCapture);
-      }
+      shareButton.addEventListener('click', shareCapture);
 
     })();
-
   </script>
 
 </body>
-
 </html>
-

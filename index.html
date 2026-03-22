@@ -1,580 +1,302 @@
-<!doctype html>
-<html lang="zh-CN">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#556C80" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>iPhone 自适应放大布局（分散按钮）</title>
-  <style>
-    html, body {
-      height: 100%;
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      background: #000000;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    /* 包裹容器 - 固定基准尺寸 */
-    .wrapper {
-      position: relative;
-      width: 393px;
-      height: 852px;
-      transform-origin: center center;
-      z-index: 1;
-    }
-    
-    /* 背景图 */
-    .background {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      width: 140vw;
-      height: 140vh;
-      transform: translate(-50%, -50%);
-      z-index: 0;
-      object-fit: cover;
-      object-position: center center;
-    }
-    
-    /* 信息标签 */
-    .info {
-      position: absolute;
-      left: 131px;
-      transform: translateX(-50%);
-      color: black;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      font-size: 20px;
-      font-weight: 400;
-      text-align: center;
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      z-index: 3;
-    }
-    .info .en {
-      font-size: 18px;
-      position: relative;
-      top: 1px;
-      left: 10px;
-      color: #555;
-    }
-    .name {
-      top: 200px;
-      left: 99px;
-    }
-    .area {
-      top: 320px;
-      left: 96px;
-    }
-    
-    /* 主卡片 */
-    .card-img {
-      position: absolute;
-      top:400px;
-      left: 249px;
-      transform: translate(-50%, -50%);
-      width: 480px;
-      height: auto;
-      z-index: 1;
-    }
-    
- 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500&display=swap');
 
-    /* 覆盖在卡片上的黑色按钮 */
-    .blackbutton-img {
-      position: absolute;
-      top: 614px;
-      left: 194px;
-      transform: translate(-50%, -50%);
-      width: 280px;
-      height: auto;
-      z-index: 2;
-    }
-    .blackbutton-label {
-      position: absolute;
-      top: 614px;
-      left: 194px;
-      transform: translate(-50%, -50%);
-      z-index: 3;
-      font-size: 18px;
-      font-weight: 700;
-      color: #ffffff;
-      -webkit-text-stroke: 0.6px rgba(0,0,0,0.6);
-      white-space: nowrap;
-      pointer-events: none;
-      user-select: none;
-    }
-    
-    /* 按钮独立定位 */
-    .btn {
-      display: block;
-      width: 100px;
-      height: auto;
-      cursor: pointer;
-      transition: transform 0.2s ease, filter 0.2s ease;
-    }
-    .btn:hover {
-      transform: scale(1.08);
-      filter: brightness(1.2);
-    }
-    .btn:active {
-      transform: scale(0.75);
-    }
-    
-    /* 按钮包裹与标签 */
-    .btn-wrap {
-      position: absolute;
-      z-index: 3;
-      text-align: center;
-      display: inline-block;
-    }
-    .btn {
-      position: relative;
-      z-index: 1;
-      display: block;
-    }
-    .btn-label {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 14px;
-      font-weight: 700;
-      color: black;
-      white-space: nowrap;
-      user-select: none;
-      pointer-events: none;
-      transition: color 0.3s ease;
-      z-index: 3;
-    }
-    
-    /* 选中状态：背景变黑、字体变白 */
-    .btn-wrap.active .btn-bg {
-      display: block;
-    }
-    .btn-bg {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      background-color: rgba(0, 0, 0, 0.7);
-      border-radius: 8px;
-      z-index: 2;
-      pointer-events: none;
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    .btn-wrap.active .btn {
-      filter: brightness(0) invert(1);
-      opacity: 0.3;
-      transition: filter 0.3s ease, opacity 0.3s ease;
-    }
-    .btn-wrap.active .btn-label {
-      color: #ffffff;
-    }
-    
-    /* 默认状态：确保未选中时恢复原样 */
-    .btn-wrap:not(.active) .btn {
-      filter: none !important;
-      opacity: 1 !important;
-      transition: filter 0.3s ease, opacity 0.3s ease;
-    }
-    .btn-wrap:not(.active) .btn-label {
-      color: black !important;
-    }
-    /* 确保未选中时背景层隐藏 */
-    .btn-wrap:not(.active) .btn-bg {
-      display: none !important;
-    }
+        body {
+            font-family: 'Jost', sans-serif;
+            background-color: #fafbfc;
+            background-image: radial-gradient(circle at 50% 0%, #ffffff 0%, #f1f3f5 100%);
+        }
+        
+        .futura-light { 
+            font-family: 'Jost', sans-serif;
+            font-weight: 200;
+            letter-spacing: 0.05em;
+        }
 
-    /* 各按钮位置（包裹容器定位） */
-    .btn-wrap.asia { top: 360px; left: 53px; }
-    .btn-wrap.us { top: 442px; left: 51px; }
-    .btn-wrap.se { top: 360px; left: 169px; }
-    .btn-wrap.oc { top: 402px; left: 201px; }
-    .btn-wrap.eu { top: 402px; left: 53px; }
-    .btn-wrap.other { top: 482px; left: 53px; }
+        input:focus::placeholder { 
+            opacity: 0; 
+            transition: opacity 0.3s ease; 
+        }
 
-    /* 各按钮尺寸（作用于图片本体） */
-    .btn-wrap.us .btn { width: 200px; }
-    .btn-wrap.se .btn { width: 140px; }
-    .btn-wrap.oc .btn { width: 140px; }
-    .btn-wrap.eu .btn { width: 140px; }
-    
-    /* 名字输入框样式（参考按钮的圆角盒子风格） */
-    .text-input {
-      position: absolute;
-      top: 240px;
-      left: 49px;
-      width: 250px;
-      height: 34px;
-      padding: 0 13px;
-      font-size: 13px;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      color: black;
-      background: #ffffff;
-      border: 1px solid #000000;
-      border-radius: 9999px;
-      box-sizing: border-box;
-      z-index: 3;
-      outline: none;
-    }
-    .text-input::placeholder {
-      color: #474747;
-    }
-    .text-input:focus {
-      box-shadow: none;
-    }
-    
-    /* blackbutton 禁用状态 */
-    .blackbutton-img {
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-    .blackbutton-img.disabled {
-      cursor: not-allowed;
-      opacity: 0.8;
-      /* 移除 pointer-events: none; 让禁用状态下也可以点击来显示提示 */
-    }
-    .blackbutton-img:hover:not(.disabled) {
-      transform: translate(-50%, -50%) scale(1.05);
-    }
-    
-    /* 提示文本样式 */
-    .warning-text {
-      position: absolute;
-      top: 177px;
-      left: 200px;
-      transform: translate(-50%, -50%);
-      z-index: 4;
-      font-size: 14px;
-      font-weight: 600;
-      color: #ff0000;
-      text-align: center;
-      white-space: nowrap;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-      user-select: none;
-    }
-    .warning-text.show {
-      opacity: 1;
-    }
+        /* Region button selected state */
+        .region-btn.active {
+            background-color: #1a1a1a;
+            border-color: #1a1a1a;
+        }
+        .region-btn.active .region-name {
+            color: #ffffff;
+        }
+        .region-btn.active .region-jp {
+            color: rgba(255,255,255,0.45);
+        }
+        .region-btn.active .region-dot {
+            background-color: rgba(255,255,255,0.3);
+        }
 
-    .site-footer {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 16px;
-      color: #ffffff;
-      letter-spacing: 0.04em;
-    }
-  </style>
+        /* --- New Cloud & CTA Styles --- */
+        :root {
+            --blue-light: #89C4F4;
+            --blue-mid: #5D9CEC;
+            --blue-dark: #3A7BD5;
+            --font-serif: 'Playfair Display', serif;
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.9);
+            --glass-shadow: 0 12px 40px rgba(58, 123, 213, 0.15);
+        }
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YYSR7BXQQQ"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-YYSR7BXQQQ');
-  </script>
+        .bottom-action-area {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px; 
+            z-index: 50;
+            pointer-events: none; 
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 32px;
+        }
+
+        .blue-cloud-bg {
+            position: absolute;
+            bottom: -20%;
+            left: -10%;
+            width: 120%;
+            height: 140%;
+            background: 
+                radial-gradient(circle at 30% 80%, rgba(93, 156, 236, 0.8) 0%, transparent 60%),
+                radial-gradient(circle at 70% 90%, rgba(137, 196, 244, 0.7) 0%, transparent 60%),
+                radial-gradient(circle at 50% 100%, rgba(58, 123, 213, 0.9) 0%, transparent 70%);
+            filter: blur(40px);
+            opacity: 0.85;
+            z-index: -1;
+            animation: cloudDrift 15s ease-in-out infinite alternate;
+        }
+
+        @keyframes cloudDrift {
+            0% { transform: scale(1) translate(0, 0); }
+            50% { transform: scale(1.05) translate(-2%, 2%); }
+            100% { transform: scale(1) translate(2%, -1%); }
+        }
+
+        .cta-wrapper {
+            pointer-events: auto;
+            width: calc(100% - 48px);
+            max-width: 240px;
+        }
+
+        .process-cta {
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: var(--glass-border);
+            border-radius: 100px; 
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--glass-shadow);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .process-cta:active {
+            transform: scale(0.96) translateY(2px);
+            box-shadow: 0 4px 16px rgba(58, 123, 213, 0.1);
+        }
+
+        .cta-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+            letter-spacing: 0.02em;
+        }
+
+        .cta-icon-circle {
+            width: 28px;
+            height: 28px;
+            background: #222;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulseIcon 3s infinite;
+        }
+
+        .cta-arrow {
+            width: 14px;
+            height: 14px;
+            stroke: #fff;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        @keyframes pulseIcon {
+            0% { box-shadow: 0 0 0 0 rgba(34, 34, 34, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(34, 34, 34, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 34, 34, 0); }
+        }
+    </style>
 </head>
-<body>
-    <img src="./background.svg" alt="背景" class="background" />
-  <div class="wrapper">
-    <!-- 背景图 -->
-    
-    <!-- 名称与区域标签 -->
-    <div class="info name">
-      <span class="jp">名前</span>
-      <span class="en">Name</span>
+<body class="text-gray-800 antialiased w-screen h-screen overflow-y-auto overflow-x-hidden flex flex-col relative">
+
+    <header class="p-6 flex justify-between items-baseline relative z-20 w-full">
+        <h1 class="text-3xl futura-light tracking-wide text-gray-900">Weave</h1>
+        <span class="text-[10px] font-medium tracking-[0.2em] text-gray-500 uppercase">Tokyo, JP</span>
+    </header>
+
+    <main class="flex-1 flex flex-col items-center justify-center relative w-full px-6 pb-6">
+
+        <div class="w-full max-w-sm flex flex-col items-center gap-y-8">
+
+            <!-- Name input -->
+            <div class="w-full relative group">
+                <label class="absolute -top-3 left-4 bg-[#fafbfc] px-3 py-0.5 flex items-baseline gap-x-1.5 z-10 border border-transparent group-focus-within:border-gray-200 rounded-full transition-colors duration-300">
+                    <span class="futura-light text-sm text-gray-800">名前</span>
+                    <span class="text-[8px] font-medium tracking-widest text-gray-400 uppercase">Name</span>
+                </label>
+                <input id="nameInput" type="text" placeholder="お名前を入力"
+                    class="w-full bg-white border border-gray-200 rounded-2xl py-4 pl-5 pr-12 text-sm font-light focus:outline-none focus:border-gray-400 focus:ring-4 focus:ring-gray-50 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.06)] transition-all placeholder:text-gray-300">
+                <img src="flight-takeoff-line.png" class="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 opacity-20 grayscale pointer-events-none" alt="">
+            </div>
+
+            <!-- Divider -->
+            <div class="w-full flex items-center gap-x-3">
+                <div class="flex-1 h-[1px] bg-gray-100"></div>
+                <span class="flex items-baseline gap-x-1.5 whitespace-nowrap">
+                    <span class="futura-light text-sm text-gray-700">地域</span>
+                    <span class="text-[8px] font-medium tracking-widest text-gray-400 uppercase">Area</span>
+                </span>
+                <div class="flex-1 h-[1px] bg-gray-100"></div>
+            </div>
+
+            <!-- Region grid -->
+            <div class="w-full grid grid-cols-2 gap-2.5">
+
+                <button data-region="asia" class="region-btn col-span-1 bg-white border border-gray-200 rounded-2xl px-4 py-4 flex items-center gap-x-3 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.06)] hover:border-gray-300 hover:shadow-md transition-all duration-200 group">
+                    <span class="region-dot w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0 transition-colors"></span>
+                    <div class="flex flex-col items-start">
+                        <span class="region-name text-[11px] font-medium tracking-widest text-gray-600 uppercase transition-colors">Asia</span>
+                        <span class="region-jp futura-light text-[10px] text-gray-400 transition-colors">アジア</span>
+                    </div>
+                </button>
+
+                <button data-region="se" class="region-btn col-span-1 bg-white border border-gray-200 rounded-2xl px-4 py-4 flex items-center gap-x-3 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.06)] hover:border-gray-300 hover:shadow-md transition-all duration-200 group">
+                    <span class="region-dot w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0 transition-colors"></span>
+                    <div class="flex flex-col items-start">
+                        <span class="region-name text-[11px] font-medium tracking-widest text-gray-600 uppercase transition-colors">SE Asia</span>
+                        <span class="region-jp futura-light text-[10px] text-gray-400 transition-colors">東南アジア</span>
+                    </div>
+                </button>
+
+                <button data-region="eu" class="region-btn col-span-1 bg-white border border-gray-200 rounded-2xl px-4 py-4 flex items-center gap-x-3 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.06)] hover:border-gray-300 hover:shadow-md transition-all duration-200 group">
+                    <span class="region-dot w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0 transition-colors"></span>
+                    <div class="flex flex-col items-start">
+                        <span class="region-name text-[11px] font-medium tracking-widest text-gray-600 uppercase transition-colors">Europe</span>
+                        <span class="region-jp futura-light text-[10px] text-gray-400 transition-colors">ヨーロッパ</span>
+                    </div>
+                </button>
+
+                <button data-region="us" class="region-btn col-span-1 bg-white border border-gray-200 rounded-2xl px-4 py-4 flex items-center gap-x-3 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.06)] hover:border-gray-300 hover:shadow-md transition-all duration-200 group">
+                    <span class="region-dot w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0 transition-colors"></span>
+                    <div class="flex flex-col items-start">
+                        <span class="region-name text-[11px] font-medium tracking-widest text-gray-600 uppercase transition-colors">Americas</span>
+                        <span class="region-jp futura-light text-[10px] text-gray-400 transition-colors">アメリカ大陸</span>
+                    </div>
+                </button>
+
+                <button data-region="oc" class="region-btn col-span-1 bg-white border border-gray-200 rounded-2xl px-4 py-4 flex items-center gap-x-3 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.06)] hover:border-gray-300 hover:shadow-md transition-all duration-200 group">
+                    <span class="region-dot w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0 transition-colors"></span>
+                    <div class="flex flex-col items-start">
+                        <span class="region-name text-[11px] font-medium tracking-widest text-gray-600 uppercase transition-colors">Oceania</span>
+                        <span class="region-jp futura-light text-[10px] text-gray-400 transition-colors">オセアニア</span>
+                    </div>
+                </button>
+
+                <button data-region="other" class="region-btn col-span-1 bg-white border border-gray-200 rounded-2xl px-4 py-4 flex items-center gap-x-3 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.06)] hover:border-gray-300 hover:shadow-md transition-all duration-200 group">
+                    <span class="region-dot w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0 transition-colors"></span>
+                    <div class="flex flex-col items-start">
+                        <span class="region-name text-[11px] font-medium tracking-widest text-gray-600 uppercase transition-colors">Other</span>
+                        <span class="region-jp futura-light text-[10px] text-gray-400 transition-colors">ほか</span>
+                    </div>
+                </button>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- New Cloud & Glass CTA Footer -->
+    <div class="bottom-action-area">
+        <div class="blue-cloud-bg"></div>
+        <div class="cta-wrapper">
+            <button id="recommendBtn" class="process-cta">
+                <span class="cta-label">おすすめ PROCESS</span>
+                <div class="cta-icon-circle">
+                    <svg class="cta-arrow" viewBox="0 0 24 24">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </div>
+            </button>
+            <div class="text-center mt-4">
+                <span class="text-[9px] font-light tracking-[0.2em] text-white/60 uppercase">© 2025 Weave AI</span>
+            </div>
+        </div>
     </div>
-    <input class="text-input" type="text" placeholder=" お名前を入力" aria-label="name input" / >
-    <div class="info area">
-      <span class="jp">地域</span>
-      <span class="en">Area</span>
-    </div>
-    
-    <!-- 独立按钮（带可见文字标签） -->
-      <div class="btn-wrap asia">
-        <img src="./buttonasia.svg" class="btn" alt="Asia アジア" title="Asia アジア" />
-        <div class="btn-label">Asia アジア</div>
-      </div>
-      <div class="btn-wrap us">
-        <img src="./buttonus.svg" class="btn" alt="The Americas アメリカ大陸" title="The Americas アメリカ大陸" />
-        <div class="btn-label">The Americas アメリカ大陸</div>
-      </div>
-      <div class="btn-wrap se">
-        <img src="./buttonse.svg" class="btn" alt="SE Asia 東南アジア" title="SE Asia 東南アジア" />
-        <div class="btn-label">SE Asia 東南アジア</div>
-      </div>
-      <div class="btn-wrap oc">
-        <img src="./buttonoc.svg" class="btn" alt="Oceania オセアニア" title="Oceania オセアニア" />
-        <div class="btn-label">Oceania オセアニア</div>
-      </div>
-      <div class="btn-wrap eu">
-        <img src="./buttoneu.svg" class="btn" alt="Europe ヨーロッパ" title="Europe ヨーロッパ" />
-        <div class="btn-label">Europe ヨーロッパ</div>
-      </div>
-      <div class="btn-wrap other">
-        <img src="./buttonother.svg" class="btn" alt="Other ほか" title="Other ほか" />
-        <div class="btn-label">Other ほか</div>
-      </div>
-    
-    <!-- 主视觉 -->
-    <img src="./card.svg" alt="card" class="card-img" />
-    <!-- 覆盖在卡片上的黑色按钮（确保 blackbutton.svg 存在于同目录） -->
-    <img src="./blackbutton.svg" alt="black button" class="blackbutton-img disabled" />
-    <div class="blackbutton-label">おすすめ</div>
-    <div class="warning-text" id="warningText"></div>
-  </div>
 
-  <script>
-    function autoScale() {
-      const wrapper = document.querySelector('.wrapper');
-      const baseWidth = 393;
-      const baseHeight = 852;
-      const scaleX = window.innerWidth / baseWidth;
-      const scaleY = window.innerHeight / baseHeight;
-      const scale = Math.min(scaleX, scaleY);
-      wrapper.style.transform = `scale(${scale})`;
-    }
-    
-    window.addEventListener('resize', autoScale);
-    window.addEventListener('load', autoScale);
-    autoScale();
-    
-    // 单选切换按钮组功能
-    document.addEventListener('DOMContentLoaded', function() {
-      const buttonWraps = document.querySelectorAll('.btn-wrap');
-      
-      // 为每个按钮创建背景层
-      buttonWraps.forEach(function(btnWrap) {
-        const btnBg = document.createElement('div');
-        btnBg.className = 'btn-bg';
-        btnWrap.appendChild(btnBg);
-      });
-      
-      // 更新按钮背景层尺寸 - 精确匹配按钮图像
-      function updateButtonBackground(btnWrap) {
-        const btn = btnWrap.querySelector('.btn');
-        const btnBg = btnWrap.querySelector('.btn-bg');
-        if (btn && btnBg) {
-          if (btnWrap.classList.contains('active')) {
-            // 等待图像加载完成
-            if (btn.complete) {
-              setBackgroundSize();
-            } else {
-              btn.onload = setBackgroundSize;
-            }
-          } else {
-            // 未选中时隐藏背景层，并确保按钮样式恢复
-            btnBg.style.display = 'none';
-            // 清除可能的内联样式，让CSS规则生效
-            btn.style.filter = '';
-            btn.style.opacity = '';
-          }
-        }
-        
-        function setBackgroundSize() {
-          // 获取按钮图像的实际渲染尺寸
-          // 使用 offsetWidth/Height 获取元素的实际显示尺寸（包括CSS设置的宽度）
-          const btnWidth = btn.offsetWidth;
-          const btnHeight = btn.offsetHeight;
-          
-          // 设置背景层的位置和尺寸，精确匹配按钮
-          // 背景层使用绝对定位，相对于 .btn-wrap 容器
-          // 按钮图像在容器中从 (0,0) 开始，所以背景层也从 (0,0) 开始
-          btnBg.style.width = btnWidth + 'px';
-          btnBg.style.height = btnHeight + 'px';
-          btnBg.style.left = '0px';
-          btnBg.style.top = '0px';
-          btnBg.style.display = 'block';
-        }
-      }
-      
-      // blackbutton 状态管理
-      const blackButton = document.querySelector('.blackbutton-img');
-      const nameInput = document.querySelector('.text-input');
-      
-      // 检查是否有按钮被选中且名字输入框有内容，更新 blackbutton 状态
-      function updateBlackButtonState() {
-        const hasActiveButton = document.querySelector('.btn-wrap.active') !== null;
-        const hasName = nameInput && nameInput.value.trim().length > 0;
-        const warningText = document.getElementById('warningText');
-        
-        if (hasActiveButton && hasName) {
-          blackButton.classList.remove('disabled');
-          // 两个条件都满足，隐藏提示
-          if (warningText) {
-            warningText.classList.remove('show');
-            warningText.textContent = '';
-          }
-        } else {
-          blackButton.classList.add('disabled');
-          // 不在这里显示提示，只在点击 blackbutton 时显示
-        }
-      }
-      
-      buttonWraps.forEach(function(btnWrap) {
-        btnWrap.addEventListener('click', function() {
-          // 移除所有按钮的 active 类，并更新所有按钮的状态
-          buttonWraps.forEach(function(wrap) {
-            wrap.classList.remove('active');
-            // 立即更新所有按钮，确保背景层被隐藏
-            updateButtonBackground(wrap);
-          });
-          
-          // 为当前点击的按钮添加 active 类
-          this.classList.add('active');
-          
-          // 等待一帧后更新新选中按钮的背景层尺寸，确保按钮已渲染
-          const clickedBtn = this;
-          requestAnimationFrame(function() {
-            updateButtonBackground(clickedBtn);
-            // 更新 blackbutton 状态
-            updateBlackButtonState();
-          });
-        });
-        
-        // 初始化时检查是否需要设置尺寸
-        if (btnWrap.classList.contains('active')) {
-          requestAnimationFrame(function() {
-            updateButtonBackground(btnWrap);
-          });
-        }
-      });
-      
-      // 监听名字输入框的变化
-      if (nameInput) {
-        nameInput.addEventListener('input', function() {
-          updateBlackButtonState();
-        });
-        // 也监听 blur 事件，确保在失去焦点时也更新状态
-        nameInput.addEventListener('blur', function() {
-          updateBlackButtonState();
-        });
-      }
-      
-      const imageMap = {
-        asia: ['asia/CN.svg', 'asia/hk.svg', 'asia/IND.svg', 'asia/jp.svg', 'asia/kr.svg', 'asia/TW.svg'],
-        eu: ['eu/ch.svg', 'eu/italy.svg', 'eu/no.svg', 'eu/paris.svg', 'eu/uk.svg'],
-        oc: ['oc/au.svg', 'oc/fiji.svg', 'oc/nz.svg'],
-        se: ['se/bkk.svg', 'se/cam.svg', 'se/kl.svg', 'se/sg.svg', 'se/vn.svg'],
-        us: ['us/ca.svg', 'us/pa.svg', 'us/us.svg'],
-        other: ['other/au.svg', 'other/bkk.svg', 'other/ca.svg', 'other/cam.svg', 'other/ch.svg', 'other/CN.svg', 'other/fiji.svg', 'other/hk.svg', 'other/IND.svg', 'other/italy.svg', 'other/jp.svg', 'other/kl.svg', 'other/kr.svg', 'other/no.svg', 'other/nz.svg', 'other/other.svg', 'other/other2.svg', 'other/other3.svg', 'other/pa.svg', 'other/paris.svg', 'other/sg.svg', 'other/TW.svg', 'other/uk.svg', 'other/us.svg', 'other/vn.svg'],
-      };
+    <script>
+        const imageMap = {
+            asia: ['asia/CN.svg', 'asia/hk.svg', 'asia/IND.svg', 'asia/jp.svg', 'asia/kr.svg', 'asia/TW.svg'],
+            eu: ['eu/ch.svg', 'eu/italy.svg', 'eu/no.svg', 'eu/paris.svg', 'eu/uk.svg'],
+            oc: ['oc/au.svg', 'oc/fiji.svg', 'oc/nz.svg'],
+            se: ['se/bkk.svg', 'se/cam.svg', 'se/kl.svg', 'se/sg.svg', 'se/vn.svg'],
+            us: ['us/ca.svg', 'us/pa.svg', 'us/us.svg'],
+            other: ['other/au.svg', 'other/bkk.svg', 'other/ca.svg', 'other/cam.svg', 'other/ch.svg', 'other/CN.svg', 'other/fiji.svg', 'other/hk.svg', 'other/IND.svg', 'other/italy.svg', 'other/jp.svg', 'other/kl.svg', 'other/kr.svg', 'other/no.svg', 'other/nz.svg', 'other/other.svg', 'other/other2.svg', 'other/other3.svg', 'other/pa.svg', 'other/paris.svg', 'other/sg.svg', 'other/TW.svg', 'other/uk.svg', 'other/us.svg', 'other/vn.svg'],
+        };
 
-      const preloadCache = new Set();
+        let selectedRegion = null;
 
-      function preloadImage(src) {
-        if (preloadCache.has(src)) {
-          return;
-        }
-        const img = new Image();
-        img.src = src;
-        preloadCache.add(src);
-      }
-
-      (function warmupImages() {
-        Object.keys(imageMap).forEach(function(regionKey) {
-          const list = imageMap[regionKey];
-          if (Array.isArray(list)) {
-            list.forEach(function(path) {
-              preloadImage(path);
+        document.querySelectorAll('.region-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedRegion = btn.dataset.region;
             });
-          }
         });
-      })();
 
-      // blackbutton 点击事件：只有选中按钮且输入名字后才能跳转
-      blackButton.addEventListener('click', function() {
-        const activeWrap = document.querySelector('.btn-wrap.active');
-        const hasName = nameInput && nameInput.value.trim().length > 0;
-        const warningText = document.getElementById('warningText');
-        
-        if (activeWrap && hasName && !this.classList.contains('disabled')) {
-          const regionClass = Array.from(activeWrap.classList).find(function(cls) {
-            return Object.prototype.hasOwnProperty.call(imageMap, cls);
-          });
-          const candidateList = regionClass ? imageMap[regionClass] : null;
+        document.getElementById('recommendBtn').addEventListener('click', () => {
+            const name = document.getElementById('nameInput').value.trim();
+            if (!name) {
+                alert('名前を入力してください');
+                return;
+            }
+            if (!selectedRegion) {
+                alert('地域を選択してください');
+                return;
+            }
 
-          if (candidateList && candidateList.length > 0) {
-            const randomIndex = Math.floor(Math.random() * candidateList.length);
-            const chosenImage = candidateList[randomIndex];
-            const selectedName = nameInput ? nameInput.value.trim() : '';
+            const candidates = imageMap[selectedRegion];
+            const chosenImage = candidates[Math.floor(Math.random() * candidates.length)];
+            
             sessionStorage.setItem('selectedImage', chosenImage);
-            sessionStorage.setItem('selectedName', selectedName);
+            sessionStorage.setItem('selectedName', name);
             localStorage.setItem('selectedImage', chosenImage);
-            localStorage.setItem('selectedName', selectedName);
-            preloadImage(chosenImage);
-            if (warningText) {
-              warningText.classList.remove('show');
-              warningText.textContent = '';
-            }
+            localStorage.setItem('selectedName', name);
+            
             window.location.href = 'country.html';
-          } else if (warningText) {
-            warningText.textContent = '该地区暂未设置推荐图片。';
-            warningText.classList.add('show');
-          }
-        } else {
-          // 显示相应的提示信息
-          if (warningText) {
-            if (!activeWrap && !hasName) {
-              warningText.textContent = '名前を入力して、地域を選んでください。';
-            } else if (!activeWrap) {
-              warningText.textContent = '地域を選択してください';
-            } else if (!hasName) {
-              warningText.textContent = '名前を入力してください';
-            }
-            warningText.classList.add('show');
-          }
-        }
-      });
-
-      
-      // 初始化 blackbutton 状态
-      updateBlackButtonState();
-      
-      // 窗口大小改变时更新（包括缩放）
-      let resizeTimer;
-      window.addEventListener('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(function() {
-          buttonWraps.forEach(function(btnWrap) {
-            if (btnWrap.classList.contains('active')) {
-              updateButtonBackground(btnWrap);
-            }
-          });
-        }, 100);
-      });
-      
-      // 监听缩放事件后也更新
-      const originalAutoScale = window.autoScale;
-      if (typeof originalAutoScale === 'function') {
-        window.addEventListener('load', function() {
-          setTimeout(function() {
-            buttonWraps.forEach(function(btnWrap) {
-              if (btnWrap.classList.contains('active')) {
-                updateButtonBackground(btnWrap);
-              }
-            });
-          }, 200);
         });
-      }
-    });
-</script>
-  <footer class="site-footer">© 2025 Weave</footer>
+    </script>
 </body>
 </html>
- 
