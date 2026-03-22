@@ -293,23 +293,30 @@
           const originalShareDisplay = shareButton.style.display;
           shareButton.style.display = 'none';
 
-          // Exact screen dimensions
-          const width  = captureArea.offsetWidth;
-          const height = captureArea.offsetHeight;
+          // Use the REAL visible viewport dimensions (window.innerWidth/Height)
+          // This is the only reliable measurement on mobile — offsetHeight can
+          // differ from the visible area due to address bar, safe-area insets etc.
+          const vw = window.innerWidth;
+          const vh = window.innerHeight;
 
           try {
-            const canvas = await window.html2canvas(captureArea, {
-              useCORS:     true,
+            // Capture document.body so the full page background + layout is included
+            const canvas = await window.html2canvas(document.body, {
+              useCORS:      true,
               backgroundColor: '#fafbfc',
-              scale:       3,
-              logging:     false,
-              width, height,
-              windowWidth: width,
-              windowHeight: height,
-              x: 0, y: 0
+              scale:        3,            // Retina quality
+              logging:      false,
+              width:        vw,           // exact visible width
+              height:       vh,           // exact visible height
+              windowWidth:  vw,
+              windowHeight: vh,
+              scrollX:      0,
+              scrollY:      0,
+              x:            0,
+              y:            0
             });
             dataUrl = canvas.toDataURL('image/png', 1.0);
-            // Cache for this minute — share taps within 60s are instant
+            // Cache for this minute — repeated share taps within 60s are instant
             sessionStorage.setItem(cacheKey, dataUrl);
           } catch (err) {
             console.error('capture failed', err);
