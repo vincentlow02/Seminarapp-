@@ -5,73 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weave — Your Destination</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500&display=swap');
-
-    body {
-      font-family: 'Jost', sans-serif;
-      background-color: #fafbfc;
-      background-image: radial-gradient(circle at 50% 0%, #ffffff 0%, #f1f3f5 100%);
-    }
-
-    .futura-light {
-      font-family: 'Jost', sans-serif;
-      font-weight: 200;
-      letter-spacing: 0.05em;
-    }
-
-    @keyframes subtle-pulse {
-      0%   { box-shadow: 0 10px 25px -5px rgba(26,26,26,0.4), 0 0 0 0 rgba(26,26,26,0.1); }
-      70%  { box-shadow: 0 10px 25px -5px rgba(26,26,26,0.4), 0 0 0 15px rgba(26,26,26,0); }
-      100% { box-shadow: 0 10px 25px -5px rgba(26,26,26,0.4), 0 0 0 0 rgba(26,26,26,0); }
-    }
-
-    .pulse-hover:hover {
-      animation: subtle-pulse 2s infinite;
-    }
-
-    ::-webkit-scrollbar { display: none; }
-    body { -ms-overflow-style: none; scrollbar-width: none; }
-
-    /* Image card: country svg fills the card */
-    #countryImageCard {
-      width: 100%;
-      height: 450px; /* Adjusted height per user request */
-      border-radius: 2.5rem;
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 15px 35px -10px rgba(0,0,0,0.15);
-      border: 1px solid rgba(255,255,255,0.6);
-      background: #f0f2f4;
-    }
-
-    #countryImage {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: auto;        /* html2canvas scaling fallback */
-      min-height: 100%;    /* prevents gaps if image is too short */
-      object-fit: cover;
-      object-position: top;
-    }
-
-    /* Capture area: the whole card + info stack for screenshot */
-    #captureArea {
-      width: 100%;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fadeup {
-      animation: fadeUp 0.6s ease both;
-    }
-    .animate-fadeup-2 { animation-delay: 0.1s; }
-    .animate-fadeup-3 { animation-delay: 0.2s; }
-    .animate-fadeup-4 { animation-delay: 0.3s; }
-  </style>
+  <link rel="stylesheet" href="css/country.css">
 
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YYSR7BXQQQ"></script>
@@ -104,7 +38,7 @@
         <div class="animate-fadeup w-full" style="animation-delay:0s">
         <div id="countryImageCard">
           <!-- Country SVG loaded by JS. Use img tag to prevent taint, CSS handles the cover crop. -->
-          <img id="countryImage" src="" alt="Country" fetchpriority="high" decoding="async" loading="eager" crossorigin="anonymous">
+          <img id="countryImage" src="" alt="Country" fetchpriority="high" decoding="async" loading="eager">
 
           <!-- subtle bottom gradient -->
           <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/10 to-transparent pointer-events-none rounded-b-[2.5rem]"></div>
@@ -138,7 +72,7 @@
           <div class="w-[1px] h-8 bg-gray-200"></div>
           <!-- Thumbnail -->
           <div class="overflow-hidden rounded-full w-10 h-10 border border-gray-100 shadow-sm flex-shrink-0 relative" style="background:#f3f4f6">
-            <img id="destCode" src="" alt="" loading="lazy" decoding="async" class="absolute top-0 left-0 w-full h-auto min-h-full object-cover object-top" crossorigin="anonymous">
+            <img id="destCode" src="" alt="" loading="lazy" decoding="async" class="absolute top-0 left-0 w-full h-auto min-h-full object-cover object-top">
           </div>
         </div>
 
@@ -159,91 +93,12 @@
     <footer class="w-full px-8 pb-8 pt-2 flex items-center justify-end relative z-30 shrink-0 mt-auto opacity-40">
       <div class="flex items-center gap-x-2.5">
         <span class="text-[9px] font-light tracking-[0.2em] text-gray-400 uppercase leading-none">© 2025 Weave AI</span>
-        <img src="flight-takeoff-line.png" alt="Takeoff" class="w-4 h-4 grayscale leading-none">
+        <img src="icon button/flight-takeoff-line.png" alt="Takeoff" class="w-4 h-4 grayscale leading-none">
       </div>
     </footer>
 
   </div><!-- end captureArea wrapper -->
 
-  <script>
-    (function () {
-
-      // ── Data from storage ──────────────────────────────────────────
-      const storedImage = sessionStorage.getItem('selectedImage') || localStorage.getItem('selectedImage') || 'asia/jp.svg';
-      const storedName  = sessionStorage.getItem('selectedName')  || localStorage.getItem('selectedName')  || '';
-
-      // ── Country / destination metadata map ─────────────────────────
-      const destinationMeta = {
-        // Asia
-        'asia/CN.svg':  { label: 'China',        code: 'CN', jp: '中国',        flag: '🇨🇳', area: 'Asia' },
-        'asia/hk.svg':  { label: 'Hong Kong',    code: 'HK', jp: '香港',        flag: '🇭🇰', area: 'Asia' },
-        'asia/IND.svg': { label: 'India',         code: 'IN', jp: 'インド',      flag: '🇮🇳', area: 'Asia' },
-        'asia/jp.svg':  { label: 'Japan',         code: 'JP', jp: '日本',        flag: '🇯🇵', area: 'Asia' },
-        'asia/kr.svg':  { label: 'Korea',         code: 'KR', jp: '韓国',        flag: '🇰🇷', area: 'Asia' },
-        'asia/TW.svg':  { label: 'Taiwan',        code: 'TW', jp: '台湾',        flag: '🇹🇼', area: 'Asia' },
-        // Europe
-        'eu/ch.svg':    { label: 'Switzerland',   code: 'CH', jp: 'スイス',      flag: '🇨🇭', area: 'Europe' },
-        'eu/italy.svg': { label: 'Italy',         code: 'IT', jp: 'イタリア',    flag: '🇮🇹', area: 'Europe' },
-        'eu/no.svg':    { label: 'Norway',        code: 'NO', jp: 'ノルウェー',  flag: '🇳🇴', area: 'Europe' },
-        'eu/paris.svg': { label: 'France',        code: 'FR', jp: 'フランス',    flag: '🇫🇷', area: 'Europe' },
-        'eu/uk.svg':    { label: 'UK',            code: 'GB', jp: 'イギリス',    flag: '🇬🇧', area: 'Europe' },
-        // Oceania
-        'oc/au.svg':    { label: 'Australia',     code: 'AU', jp: 'オーストラリア', flag: '🇦🇺', area: 'Oceania' },
-        'oc/fiji.svg':  { label: 'Fiji',          code: 'FJ', jp: 'フィジー',     flag: '🇫🇯', area: 'Oceania' },
-        'oc/nz.svg':    { label: 'New Zealand',   code: 'NZ', jp: 'ニュージーランド', flag: '🇳🇿', area: 'Oceania' },
-        // SE Asia
-        'se/bkk.svg':   { label: 'Thailand',      code: 'TH', jp: 'タイ',        flag: '🇹🇭', area: 'SE Asia' },
-        'se/cam.svg':   { label: 'Cambodia',      code: 'KH', jp: 'カンボジア',  flag: '🇰🇭', area: 'SE Asia' },
-        'se/kl.svg':    { label: 'Malaysia',      code: 'MY', jp: 'マレーシア',  flag: '🇲🇾', area: 'SE Asia' },
-        'se/sg.svg':    { label: 'Singapore',     code: 'SG', jp: 'シンガポール', flag: '🇸🇬', area: 'SE Asia' },
-        'se/vn.svg':    { label: 'Vietnam',       code: 'VN', jp: 'ベトナム',    flag: '🇻🇳', area: 'SE Asia' },
-        // Americas
-        'us/ca.svg':    { label: 'Canada',        code: 'CA', jp: 'カナダ',      flag: '🇨🇦', area: 'The Americas' },
-        'us/pa.svg':    { label: 'Panama',        code: 'PA', jp: 'パナマ',      flag: '🇵🇦', area: 'The Americas' },
-        'us/us.svg':    { label: 'USA',           code: 'US', jp: 'アメリカ',    flag: '🇺🇸', area: 'The Americas' },
-      };
-
-      // ── Apply country image ─────────────────────────────────────────
-      const imgEl = document.getElementById('countryImage');
-      imgEl.src = storedImage;
-
-      // ── Apply metadata ──────────────────────────────────────────────
-      const meta = destinationMeta[storedImage];
-      if (meta) {
-        document.getElementById('destLabel').textContent = meta.label;
-        document.getElementById('destCode').src = storedImage;
-        document.getElementById('destCode').setAttribute('title', meta.label);
-        document.getElementById('destJp').textContent    = meta.jp;
-        document.getElementById('areaLabel').textContent = meta.area;
-      } else {
-        document.getElementById('destLabel').textContent = 'Unknown';
-        document.getElementById('destCode').src = storedImage;
-        document.getElementById('destCode').setAttribute('title', 'Unknown');
-        document.getElementById('destJp').textContent    = 'ほか';
-        document.getElementById('areaLabel').textContent = 'Other';
-      }
-
-      // ── User name ──────────────────────────────────────────────────
-      const nameEl = document.getElementById('userName');
-      nameEl.textContent = storedName || '';
-
-      // ── Live timestamp ─────────────────────────────────────────────
-      const tsEl = document.getElementById('timestamp');
-      function updateTimestamp() {
-        if (!tsEl) return;
-        const now = new Date();
-        const pad = n => String(n).padStart(2, '0');
-        tsEl.textContent =
-          `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ` +
-          `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-      }
-      updateTimestamp();
-      setInterval(updateTimestamp, 1000);
-
-
-
-    })();
-  </script>
-
+  <script src="js/country.js"></script>
 </body>
 </html>
