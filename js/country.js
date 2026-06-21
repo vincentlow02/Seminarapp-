@@ -30,22 +30,44 @@
     'us/us.svg':    { label: 'USA',          code: 'US', jp: 'アメリカ',    flag: '🇺🇸', area: 'The Americas' },
   };
 
-  const normalizedImage = storedImage.replace(/^assets\//, '');
-  const assetsBase = 'assets/';
+  const normalizedImage = storedImage.replace(/^(assets\/regions\/|assets\/|regions\/)/, '');
+  const assetsBase = 'assets/regions/';
+
+  async function setSvgDataUrl(element, src) {
+    if (!element || !src || src.startsWith('data:')) return;
+    if (!src.toLowerCase().endsWith('.svg')) {
+      element.src = src;
+      return;
+    }
+    try {
+      const response = await fetch(src);
+      if (!response.ok) throw new Error('Failed to fetch SVG');
+      const text = await response.text();
+      const base64 = btoa(unescape(encodeURIComponent(text)));
+      element.src = 'data:image/svg+xml;base64,' + base64;
+    } catch (error) {
+      element.src = src;
+    }
+  }
+
   const imgEl = document.getElementById('countryImage');
   imgEl.src = assetsBase + normalizedImage;
 
   const meta = destinationMeta[normalizedImage];
   if (meta) {
     document.getElementById('destLabel').textContent = meta.label;
-    document.getElementById('destCode').src = assetsBase + normalizedImage;
-    document.getElementById('destCode').setAttribute('title', meta.label);
+    const destCodeEl = document.getElementById('destCode');
+    destCodeEl.src = assetsBase + normalizedImage;
+    setSvgDataUrl(destCodeEl, assetsBase + normalizedImage);
+    destCodeEl.setAttribute('title', meta.label);
     document.getElementById('destJp').textContent = meta.jp;
     document.getElementById('areaLabel').textContent = meta.area;
   } else {
     document.getElementById('destLabel').textContent = 'Unknown';
-    document.getElementById('destCode').src = assetsBase + normalizedImage;
-    document.getElementById('destCode').setAttribute('title', 'Unknown');
+    const destCodeEl = document.getElementById('destCode');
+    destCodeEl.src = assetsBase + normalizedImage;
+    setSvgDataUrl(destCodeEl, assetsBase + normalizedImage);
+    destCodeEl.setAttribute('title', 'Unknown');
     document.getElementById('destJp').textContent = 'ほか';
     document.getElementById('areaLabel').textContent = 'Other';
   }
@@ -63,4 +85,5 @@
 
   updateTimestamp();
   setInterval(updateTimestamp, 1000);
+
 })();

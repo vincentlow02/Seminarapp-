@@ -37,7 +37,7 @@ document.getElementById('recommendBtn').addEventListener('click', () => {
     localStorage.setItem('selectedName', name);
 
     const preloadImg = new Image();
-    preloadImg.src = new URL('assets/' + chosenImage, document.baseURI).href;
+    preloadImg.src = new URL('assets/regions/' + chosenImage, document.baseURI).href;
     window.location.href = 'country.html?v=' + new Date().getTime();
 });
 
